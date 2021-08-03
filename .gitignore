@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# token
+app/movie-mate-43364-firebase-adminsdk-mhl98-ee193c1f30.json

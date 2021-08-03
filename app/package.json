@@ -1,0 +1,26 @@
+{
+  "name": "movie-mate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "start:dev": "./node_modules/.bin/nodemon app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "firebase-admin": "^9.11.0",
+    "nodemon": "^2.0.7",
+    "husky": "^4.3.8",
+    "prettier": "^2.3.0",
+    "pretty-quick": "^3.1.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged --verbose --pattern \"**/*.*(ts|tsx|js|jsx|css)\""
+    }
+  },
+  "author": "",
+  "license": "ISC"
+}
