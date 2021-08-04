@@ -16,5 +16,6 @@ Frontend Setup
 cd ui
 npm install
 npm install react-router-dom
+npm install @material-ui/core
 npm start
 ```

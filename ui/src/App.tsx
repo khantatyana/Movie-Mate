@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
 import axios from "axios";
-import Home from "./Home";
+import Home from "./Components/Home";
 import "firebase/auth";
 import "./App.css";
 
