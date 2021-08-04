@@ -14,14 +14,32 @@
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  background-color: #861e1e;
+  height: 200px;
+  padding: 20px;
+  color: #222;
+}
+.App-title {
+  font-size: 1.5em;
+  font-weight: bold;
   color: white;
+}
+.showlink {
+  padding: 0.4rem 0.8rem;
+  background-color: white;
+  border-radius: 3px;
+  color: #861e1e;
+  text-decoration: none !important;
+  margin: 5px;
+}
+.showlink:hover {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+.title {
+  font-weight: bold;
+  color: #861e1e;
 }
 
 .App-link {
