@@ -1,10 +1,12 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
 const serviceAccount = require("./movie-mate-43364-firebase-adminsdk-mhl98-ee193c1f30.json");
-const movielens = require("movielens");
+const movielens = require("./data/movielens-api");
 
-const PORT = 4200;
+const PORT = process.env.PORT || 4200;
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -28,27 +30,13 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Ayman to refactor if necessary
-let cookie;
-
-movielens
-  .login("sseveran@stevens.edu", "Stevens123") // <-- BAD!!!
-  .then(function (c) {
-    cookie = c;
-  })
-  .catch(function (err) {
-    console.error(err);
-  });
-
-app.get("/explore", (req, res, next) => {
-  movielens
-    .explore(cookie, req.query)
-    .then(function (data) {
-      res.json(data);
-    })
-    .catch(function (err) {
-      res.sendStatus(500);
-    });
+app.get("/explore", async (req, res, next) => {
+  try {
+    const result = await movielens.queryMovies(req.query);
+    res.json(result);
+  } catch (e) {
+    res.sendStatus(500);
+  }
 });
 
 app.listen(PORT, () =>
