@@ -46,3 +46,7 @@ code {
 .MuiImageList-root {
   padding: 0 4px 4px 4px !important;
 }
+
+.no-image-available {
+  height: 500px;
+}
