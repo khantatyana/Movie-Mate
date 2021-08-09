@@ -1,9 +1,23 @@
 import { useEffect, useState } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Redirect,
+  Switch,
+} from "react-router-dom";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
-import axios from "axios";
+import Home from "./Components/Home";
 import "firebase/auth";
 import "./App.css";
+import { Movies } from "./Components/Movies";
+import { NotFound } from "./Components/NotFound";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import Button from "@material-ui/core/Button";
+import { Movie } from "./Components/Movie";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYk4I-2c5E72cvb_wJwg3syt7xjrAssQg",
@@ -31,59 +45,48 @@ const uiConfig = {
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
 
-  const makeRequest = async () => {
-    const user = firebase.auth().currentUser;
-
-    let token = null;
-
-    try {
-      token = await user.getIdToken();
-    } catch (e) {}
-
-    try {
-      await axios.get("http://localhost:4200", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      alert("authenticated request SUCCESS!");
-    } catch (e) {
-      alert("authenticated request FAILURE!");
-    }
-  };
-
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       setAuthenticated(!!user);
     });
   }, []);
 
-  if (!authenticated) {
-    return (
-      <div>
-        <h1>Movie Mate</h1>
-        <p>Please sign-in:</p>
-        <button onClick={() => makeRequest()}>Make request</button>
-        <StyledFirebaseAuth
-          uiConfig={uiConfig}
-          firebaseAuth={firebase.auth()}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <h1>Movie Mate</h1>
-      <p>
-        Welcome {firebase.auth().currentUser.displayName}! You are now
-        signed-in!
-      </p>
-      <button onClick={() => makeRequest()}>Make request</button>
-      <button onClick={() => firebase.auth().signOut()}>Sign-out</button>
-    </div>
+    <Router>
+      <div className="App">
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6">
+              <Link to="/movies">Movie Mate</Link>
+            </Typography>
+            {authenticated ? (
+              <Button color="inherit" onClick={() => firebase.auth().signOut()}>
+                Sign-out
+              </Button>
+            ) : null}
+          </Toolbar>
+        </AppBar>
+        {authenticated ? (
+          <div className="App-body">
+            <Switch>
+              <Route exact path="/movies" component={Movies} />
+              <Route exact path="/movies/:movieId" component={Movie} />
+              <Route exact path="/404" component={NotFound} />
+              <Redirect from="" to="/movies" />
+            </Switch>
+          </div>
+        ) : (
+          <div className="App-body">
+            <Home></Home>
+            <p>Please sign-in:</p>
+            <StyledFirebaseAuth
+              uiConfig={uiConfig}
+              firebaseAuth={firebase.auth()}
+            />
+          </div>
+        )}
+      </div>
+    </Router>
   );
 }
 
