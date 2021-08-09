@@ -5,6 +5,7 @@ const comment = require("./Comment");
 const UserMovieSchema = new mongoose.Schema({
   _id: { type: Number, required: true },
   title: { type: String, required: true },
+  year: { type: Number, required: true },
   posterUrl: { type: String, required: true },
 });
 

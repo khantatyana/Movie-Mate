@@ -1,15 +1,17 @@
 const movielens = require("movielens");
+const validators = require("../utils/validators");
 
 let cookie;
 
-movielens
-  .login(process.env.MOVIELENS_USERNAME, process.env.MOVIELENS_PASSWORD)
-  .then(function (c) {
-    cookie = c;
-  })
-  .catch(function (err) {
-    console.error(err);
-  });
+async function movieLensLogin() {
+  cookie = await movielens.login(
+    process.env.MOVIELENS_USERNAME,
+    process.env.MOVIELENS_PASSWORD
+  );
+  console.log(`Logged in to Movielens successfully. Cookie: ${cookie}`);
+}
+
+movieLensLogin();
 
 module.exports = {
   async queryMovies(query) {
@@ -19,9 +21,9 @@ module.exports = {
   },
 
   async getMovieById(movielensId) {
-    if (!validators.isNonEmptyString(movielensId))
+    if (!validators.isPositiveNumber(movielensId))
       throw "Please provide a valid MovieLens ID";
 
-    return await movielens.get(cookie, `movies/${movielens}`);
+    return await movielens.get(cookie, `movies/${movielensId}`);
   },
 };

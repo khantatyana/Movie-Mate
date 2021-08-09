@@ -20,4 +20,8 @@ module.exports = {
       /^[A-Za-z]/i.test(name)
     );
   },
+
+  isPositiveNumber(num) {
+    return typeof num === "number" && num >= 0;
+  },
 };

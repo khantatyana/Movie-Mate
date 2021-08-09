@@ -5,6 +5,7 @@ const cors = require("cors");
 const admin = require("firebase-admin");
 const serviceAccount = require("./movie-mate-43364-firebase-adminsdk-mhl98-ee193c1f30.json");
 const movielens = require("./data/movielens-api");
+const mongooseConnection = require("./config/mongoConnection");
 
 const PORT = process.env.PORT || 4200;
 
@@ -13,6 +14,8 @@ admin.initializeApp({
 });
 
 const app = express();
+
+const dbConnection = mongooseConnection();
 
 app.use(cors());
 app.use(express.json());
