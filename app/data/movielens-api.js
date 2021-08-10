@@ -14,16 +14,20 @@ async function movieLensLogin() {
 movieLensLogin();
 
 module.exports = {
-  async queryMovies(query) {
+  async queryMovies(query, genre) {
     if (!query) return [];
+    params = undefined;
+    if (genre) {
+      params = { genre };
+    }
 
-    return await movielens.explore(cookie, query);
+    return (await movielens.explore(cookie, query, params)).data;
   },
 
   async getMovieById(movielensId) {
     if (!validators.isPositiveNumber(movielensId))
-      throw "Please provide a valid MovieLens ID";
+      throw new "Please provide a valid MovieLens ID"();
 
-    return await movielens.get(cookie, `movies/${movielensId}`);
+    return (await movielens.get(cookie, `movies/${movielensId}`)).data;
   },
 };
