@@ -1,10 +1,12 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import firebase from "firebase/app";
 import { makeStyles } from "@material-ui/core/styles";
 import ImageList from "@material-ui/core/ImageList";
 import ImageListItem from "@material-ui/core/ImageListItem";
 import ImageListItemBar from "@material-ui/core/ImageListItemBar";
 import IconButton from "@material-ui/core/IconButton";
+import items from "./wishlist";
+import { Link } from "react-router-dom";
 
 export const UserProfile = (props) => {
   const useStyles = makeStyles((theme) => ({
@@ -21,91 +23,110 @@ export const UserProfile = (props) => {
       transform: "translateZ(0)",
     },
     title: {
-      color: theme.palette.primary.light,
+      color: "black",
     },
     titleBar: {
-      background:
-        "linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)",
+      background: "white",
     },
   }));
 
   const classes = useStyles();
   const [currentUser] = useState(firebase.auth().currentUser);
   const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(items);
   let wishList = null;
   let favorites = null;
 
   useEffect(() => {
     (async () => {
+      console.log(userData);
       console.log(currentUser);
       // getUserById API call
       // setUserData(result)
     })();
-  }, [currentUser]);
+  }, [currentUser, userData]);
 
-  const buildWishListItem = (item) => {
+  const buildWishListItem = (result) => {
     return (
-      <ImageListItem key={item.img}>
-        <img src={item.img} alt={item.title} />
-        <ImageListItemBar
-          title={item.title}
-          classes={{
-            root: classes.titleBar,
-            title: classes.title,
-          }}
-          actionIcon={
-            <IconButton aria-label={`star ${item.title}`}></IconButton>
-          }
-        />
+      <ImageListItem key={result.movieId}>
+        <Link to={"movies/" + result.movieId}>
+          {result.img ? (
+            <img src={result.img} alt={result.title} />
+          ) : (
+            <p className="no-image-available">No image available</p>
+          )}
+
+          <ImageListItemBar
+            title={`${result.title} (${result.year})`}
+            classes={{
+              root: classes.titleBar,
+              title: classes.title,
+            }}
+          />
+        </Link>
       </ImageListItem>
     );
   };
 
-  const buildFavListItem = (item) => {
+  const buildFavListItem = (result) => {
     return (
-      <ImageListItem key={item.img}>
-        <img src={item.img} alt={item.title} />
-        <ImageListItemBar
-          title={item.title}
-          classes={{
-            root: classes.titleBar,
-            title: classes.title,
-          }}
-        />
+      <ImageListItem key={result.movieId}>
+        <Link to={"movies/" + result.movieId}>
+          {result.img ? (
+            <img src={result.img} alt={result.title} />
+          ) : (
+            <p className="no-image-available">No image available</p>
+          )}
+
+          <ImageListItemBar
+            title={`${result.title} (${result.year})`}
+            classes={{
+              root: classes.titleBar,
+              title: classes.title,
+            }}
+          />
+        </Link>
       </ImageListItem>
     );
   };
 
   if (userData.wishList) {
-    wishList = userData.wishList.map((item) => {
-      return buildWishListItem(item);
-    });
+    wishList =
+      userData &&
+      userData.wishList.map((item) => {
+        return buildWishListItem(item);
+      });
   }
 
   if (userData.favorites) {
-    favorites = userData.favorites.map((item) => {
-      return buildFavListItem(item);
-    });
+    favorites =
+      userData &&
+      userData.favorites.map((item) => {
+        return buildFavListItem(item);
+      });
   }
 
   return (
     <div>
       <div className="profile-header">
-        <img src={currentUser.photoURL} alt="" />
+        <img src={currentUser.photoURL} alt="Profile" />
         <p>Name: {currentUser.displayName}</p>
         <p>Email: {currentUser.email}</p>
       </div>
+      <h2> My Favorites </h2>
       <div className={classes.root}>
-        <ImageList className={classes.imageList} cols={2.5}>
+        <ImageList className={classes.imageList} rowHeight={350} cols={4}>
           {favorites}
         </ImageList>
       </div>
+      <p>{` << Scroll >> `}</p>
+      <h2> My Wish List </h2>
       <div className={classes.root}>
-        <ImageList className={classes.imageList} cols={2.5}>
+        <ImageList className={classes.imageList} rowHeight={350} cols={4}>
           {wishList}
         </ImageList>
       </div>
+      <p>{` << Scroll >> `}</p>
     </div>
   );
 };
