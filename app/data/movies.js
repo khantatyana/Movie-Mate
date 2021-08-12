@@ -13,7 +13,7 @@ async function getMovieById(movieId) {
     // Try to grab it from Movielens and add it to our DB
     try {
       let mLensMovie = await movielens.getMovieById(movieId);
-      if (!mLensMovie) throw `Couldn't get movie with the given ID ${movieId}`;
+      if (!mLensMovie) return undefined; // Couldn't find the movie with that ID
 
       mLensMovie = mLensMovie.movieDetails.movie;
 

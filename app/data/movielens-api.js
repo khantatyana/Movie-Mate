@@ -28,6 +28,16 @@ module.exports = {
     if (!validators.isPositiveNumber(movielensId))
       throw new "Please provide a valid MovieLens ID"();
 
-    return (await movielens.get(cookie, `movies/${movielensId}`)).data;
+    try {
+      const movie = await movielens.get(cookie, `movies/${movielensId}`);
+    } catch (e) {
+      if (e.response.status >= 400 && e.response.status < 500) {
+        return undefined; // Didn't find such movie
+      } else {
+        throw e;
+      }
+    }
+
+    return movie.data;
   },
 };
