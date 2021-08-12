@@ -3,15 +3,14 @@ const express = require("express");
 const router = express.Router();
 const data = require("../data");
 const validators = require("../utils/validators");
+const routesUtils = require("./routes-utils");
 
 router.post("/", async (req, res, next) => {
   const { name, email } = req.body;
-  if (!validators.isLettersOnly(name)) {
-    res
-      .status(400)
-      .json({
-        error: `Invalid user name: ${name}. User name should be alphanumeric value`,
-      });
+  if (!validators.isNonEmptyString(name)) {
+    res.status(400).json({
+      error: `User name must be provided`,
+    });
     return;
   }
   if (!validators.isValidEmail(email)) {
@@ -25,12 +24,18 @@ router.post("/", async (req, res, next) => {
 
 router.put("/:userId", async (req, res, next) => {
   const { name, email } = req.body;
-  if (!validators.isLettersOnly(name)) {
-    res
-      .status(400)
-      .json({
-        error: `Invalid user name: ${name}. User name should be alphanumeric value`,
-      });
+  const userId = req.params.userId;
+
+  if (
+    !routesUtils.authenticateUser(req, res) ||
+    !routesUtils.authorizeUser(userId, req, res)
+  )
+    return;
+
+  if (!validators.isNonEmptyString(name)) {
+    res.status(400).json({
+      error: `Username must be provided`,
+    });
     return;
   }
   if (!validators.isValidEmail(email)) {
@@ -38,7 +43,6 @@ router.put("/:userId", async (req, res, next) => {
     return;
   }
 
-  const userId = req.params.userId;
   if (!validators.isNonEmptyString(userId)) {
     res.status(400).json({ error: "You must provide valid userID" });
     return;
@@ -82,10 +86,16 @@ router.get("/:userId", async (req, res, next) => {
   res.json(user);
 });
 
-router.post("/:userId/{movieList}/:movieId", async (req, res, next) => {
+router.post("/:userId/:movieList/:movieId", async (req, res, next) => {
   const userId = req.params.userId;
-  const movieList = req.params.moviesCategory;
+  const movieList = req.params.movieList;
   const movieId = req.params.movieId;
+
+  if (
+    !routesUtils.authenticateUser(req, res) ||
+    !routesUtils.authorizeUser(userId, req, res)
+  )
+    return;
 
   if (!validators.isNonEmptyString(userId)) {
     res.status(400).json({ error: "You must provide valid userID" });
@@ -93,12 +103,10 @@ router.post("/:userId/{movieList}/:movieId", async (req, res, next) => {
   }
 
   if (!validators.isNonEmptyString(movieList)) {
-    res
-      .status(400)
-      .json({
-        error:
-          "You must provide valid movie list one of (likedMovies, dislikedMovies, wishMovies)",
-      });
+    res.status(400).json({
+      error:
+        "You must provide valid movie list one of (likedMovies, dislikedMovies, wishMovies)",
+    });
     return;
   }
   if (!validators.isPositiveNumber(movieId)) {
@@ -130,10 +138,16 @@ router.post("/:userId/{movieList}/:movieId", async (req, res, next) => {
   res.json(result);
 });
 
-router.delete("/:userId/{movieList}/:movieId", async (req, res, next) => {
+router.delete("/:userId/:movieList/:movieId", async (req, res, next) => {
   const userId = req.params.userId;
-  const movieList = req.params.moviesCategory;
+  const movieList = req.params.movieList;
   const movieId = req.params.movieId;
+
+  if (
+    !routesUtils.authenticateUser(req, res) ||
+    !routesUtils.authorizeUser(userId, req, res)
+  )
+    return;
 
   if (!validators.isNonEmptyString(userId)) {
     res.status(400).json({ error: "You must provide valid userID" });
@@ -141,12 +155,10 @@ router.delete("/:userId/{movieList}/:movieId", async (req, res, next) => {
   }
 
   if (!validators.isNonEmptyString(movieList)) {
-    res
-      .status(400)
-      .json({
-        error:
-          "You must provide valid movie list one of (likedMovies, dislikedMovies, wishMovies)",
-      });
+    res.status(400).json({
+      error:
+        "You must provide valid movie list one of (likedMovies, dislikedMovies, wishMovies)",
+    });
     return;
   }
   if (!validators.isPositiveNumber(movieId)) {

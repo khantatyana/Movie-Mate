@@ -6,7 +6,7 @@ const routesSetup = (app) => {
   app.use("/users", usersRoute);
 
   app.use("*", (req, res) => {
-    res.status(404).render("home/404", { title: "Page not found!" });
+    res.sendStatus(404);
   });
 };
 

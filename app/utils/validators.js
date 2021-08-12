@@ -22,6 +22,16 @@ module.exports = {
   },
 
   isPositiveNumber(num) {
-    return typeof num === "number" && num >= 0;
+    return this.isNumeric(num) && num >= 0;
+  },
+
+  isNumeric(input) {
+    if (typeof input == "number") return true;
+    if (typeof input == "string") {
+      return (
+        !isNaN(input) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+        !isNaN(parseFloat(input))
+      ); // ...and ensure strings of whitespace fail
+    }
   },
 };

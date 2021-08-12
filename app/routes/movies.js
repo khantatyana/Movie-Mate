@@ -3,10 +3,11 @@ const router = express.Router();
 const data = require("../data");
 const validators = require("../utils/validators");
 const xss = require("xss");
+const routesUtils = require("./routes-utils");
 
-router.get("/", async (req, res, next) => {
+router.get("/explore", async (req, res, next) => {
   try {
-    const result = await data.movielens.queryMovies(req.query, req.genre);
+    const result = await data.movielens.queryMovies(req.query);
     res.json(result);
   } catch (e) {
     res.status(500).json(e);
@@ -46,22 +47,15 @@ router.post("/:id/comments", async (req, res, next) => {
       res.status(400).json({ error: "You must provide a comment text" });
       return;
     }
-    if (!req.session.user) {
-      res
-        .status(403)
-        .json({
-          error: "User is not logged in. Please login to post a comment.",
-        });
-      return;
-    }
+    if (!routesUtils.authenticateUser(req, res)) return;
 
-    const comment = await data.movies.addComment(
+    const movieObject = await data.movies.addComment(
       movieId,
-      req.session.user._id,
-      req.session.user.name,
+      req.user._id,
+      req.user.name,
       comment
     );
-    res.json(comment);
+    res.json(movieObject);
   } catch (e) {
     res.status(500).json(e);
   }
@@ -84,34 +78,20 @@ router.delete("/:id/comments/:commentId", async (req, res, next) => {
     return;
   }
 
-  if (!req.session.user) {
-    res
-      .status(403)
-      .json({
-        error: "User is not logged in. Please login to remove a comment.",
-      });
-    return;
-  }
+  if (!routesUtils.authenticateUser(req, res)) return;
 
   const commentData = await data.movies.getCommentById(movieId, commentId);
   if (!commentData) {
-    res
-      .status(400)
-      .json({
-        error: "Could not find a comment with the given ID " + commentId,
-      });
+    res.status(400).json({
+      error: "Could not find a comment with the given ID " + commentId,
+    });
     return;
   }
 
-  if (commentData.userId !== req.session.user._id) {
-    res
-      .status(403)
-      .json({ error: "You must be the owner of the comment to delete it." });
-    return;
-  }
+  if (!routesUtils.authorizeUser(commentData.userId, req, res)) return;
 
-  await data.movies.removeComment(movieId, commentId);
-  res.sendStatus(200);
+  const movieObject = await data.movies.removeComment(movieId, commentId);
+  res.json(movieObject);
 });
 
 router.put("/:id/comments/:commentId", async (req, res, next) => {
@@ -132,34 +112,24 @@ router.put("/:id/comments/:commentId", async (req, res, next) => {
     return;
   }
 
-  if (!req.session.user) {
-    res
-      .status(403)
-      .json({
-        error: "User is not logged in. Please login to edit a comment.",
-      });
-    return;
-  }
+  if (!routesUtils.authenticateUser(req, res)) return;
 
   const commentData = await data.movies.getCommentById(movieId, commentId);
   if (!commentData) {
-    res
-      .status(400)
-      .json({
-        error: "Could not find a comment with the given ID " + commentId,
-      });
+    res.status(400).json({
+      error: "Could not find a comment with the given ID " + commentId,
+    });
     return;
   }
 
-  if (commentData.userId !== req.session.user._id) {
-    res
-      .status(403)
-      .json({ error: "You must be the owner of the comment to modify it." });
-    return;
-  }
+  if (!routesUtils.authorizeUser(commentData.userId, req, res)) return;
 
-  await data.movies.editComment(movieId, commentId, commentText);
-  res.sendStatus(200);
+  const movieObject = await data.movies.editComment(
+    movieId,
+    commentId,
+    commentText
+  );
+  res.json(movieObject);
 });
 
 module.exports = router;

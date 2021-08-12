@@ -98,4 +98,10 @@ async function saveSafely(document) {
   }
 }
 
-module.exports = { getMovieById, addComment, removeComment, editComment };
+module.exports = {
+  getMovieById,
+  addComment,
+  removeComment,
+  editComment,
+  getCommentById,
+};

@@ -8,12 +8,15 @@ class MoviesService {
   async explore(page: number, q: string): Promise<ExploreResponse> {
     const token = await this.getToken();
     const searchParams = new URLSearchParams({ page: page.toString(), q: q });
-    const response = await axios.get(`${BASE_URL}/explore?${searchParams}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await axios.get(
+      `${BASE_URL}/movies/explore?${searchParams}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   }
 

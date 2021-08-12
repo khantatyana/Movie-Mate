@@ -16,12 +16,8 @@ movieLensLogin();
 module.exports = {
   async queryMovies(query, genre) {
     if (!query) return [];
-    params = undefined;
-    if (genre) {
-      params = { genre };
-    }
 
-    return (await movielens.explore(cookie, query, params)).data;
+    return (await movielens.explore(cookie, query)).data;
   },
 
   async getMovieById(movielensId) {
@@ -30,6 +26,7 @@ module.exports = {
 
     try {
       const movie = await movielens.get(cookie, `movies/${movielensId}`);
+      return movie.data;
     } catch (e) {
       if (e.response.status >= 400 && e.response.status < 500) {
         return undefined; // Didn't find such movie
@@ -37,7 +34,5 @@ module.exports = {
         throw e;
       }
     }
-
-    return movie.data;
   },
 };
