@@ -2,7 +2,7 @@ require("dotenv").config();
 const db = require("../config/mongoConnection");
 const { users, movies, movielens } = require("../data");
 
-async function main() {
+async function test1() {
   await new Promise((r) => setTimeout(r, 2000));
   const conn = await db();
   conn.dropDatabase();
@@ -26,5 +26,15 @@ async function main() {
   await users.addMovieToUserList(ayman._id, movie2._id, "wishMovies");
   await users.addMovieToUserList(bgates._id, movie1._id, "dislikedMovies");
 }
+async function test2() {
+  await new Promise((r) => setTimeout(r, 2000));
+  const conn = await db();
 
-main();
+  try {
+    console.log(await movies.getMovieById(23623623));
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+test2();

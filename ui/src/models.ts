@@ -1,9 +1,6 @@
 export interface ExploreResponse {
-  status: string;
-  data: {
-    pager: Pager;
-    searchResults: SearchResult[];
-  };
+  pager: Pager;
+  searchResults: SearchResult[];
 }
 
 export interface Pager {

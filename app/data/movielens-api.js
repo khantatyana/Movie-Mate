@@ -14,16 +14,25 @@ async function movieLensLogin() {
 movieLensLogin();
 
 module.exports = {
-  async queryMovies(query) {
+  async queryMovies(query, genre) {
     if (!query) return [];
 
-    return await movielens.explore(cookie, query);
+    return (await movielens.explore(cookie, query)).data;
   },
 
   async getMovieById(movielensId) {
     if (!validators.isPositiveNumber(movielensId))
-      throw "Please provide a valid MovieLens ID";
+      throw new "Please provide a valid MovieLens ID"();
 
-    return await movielens.get(cookie, `movies/${movielensId}`);
+    try {
+      const movie = await movielens.get(cookie, `movies/${movielensId}`);
+      return movie.data;
+    } catch (e) {
+      if (e.response.status >= 400 && e.response.status < 500) {
+        return undefined; // Didn't find such movie
+      } else {
+        throw e;
+      }
+    }
   },
 };

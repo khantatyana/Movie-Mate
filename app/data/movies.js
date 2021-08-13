@@ -11,17 +11,21 @@ async function getMovieById(movieId) {
 
   if (!movie) {
     // Try to grab it from Movielens and add it to our DB
-    let mLensMovie = (await movielens.getMovieById(movieId)).data;
-    if (!mLensMovie) throw `Couldn't get movie with the given ID ${movieId}`;
+    try {
+      let mLensMovie = await movielens.getMovieById(movieId);
+      if (!mLensMovie) return undefined; // Couldn't find the movie with that ID
 
-    mLensMovie = mLensMovie.movieDetails.movie;
+      mLensMovie = mLensMovie.movieDetails.movie;
 
-    movie = models.Movie({
-      _id: mLensMovie.movieId,
-      title: mLensMovie.title,
-      year: mLensMovie.releaseYear,
-      posterUrl: mLensMovie.posterPath,
-    });
+      movie = models.Movie({
+        _id: mLensMovie.movieId,
+        title: mLensMovie.title,
+        year: mLensMovie.releaseYear,
+        posterUrl: mLensMovie.posterPath,
+      });
+    } catch (e) {
+      throw e.response.data.message;
+    }
 
     movie = await saveSafely(movie);
   }
@@ -44,6 +48,16 @@ async function addComment(movieId, userId, userName, comment) {
   movie.comments.push(commentObj);
 
   return await saveSafely(movie);
+}
+
+async function getCommentById(movieId, commentId) {
+  if (!validators.isNonEmptyString(commentId))
+    throw "Please provide a valid user ID";
+  if (!validators.isPositiveNumber(movieId))
+    throw "Please provide a valid movie ID";
+
+  const movie = await getMovieById(movieId);
+  return movie.comments.find((c) => c._id === commentId);
 }
 
 async function removeComment(movieId, commentId) {
@@ -84,4 +98,10 @@ async function saveSafely(document) {
   }
 }
 
-module.exports = { getMovieById, addComment, removeComment, editComment };
+module.exports = {
+  getMovieById,
+  addComment,
+  removeComment,
+  editComment,
+  getCommentById,
+};

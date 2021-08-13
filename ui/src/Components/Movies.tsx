@@ -29,8 +29,8 @@ export const Movies = (props) => {
       if (page && q) {
         const response = await moviesService.explore(page, q);
         setLoading(false);
-        setPager(response.data.pager);
-        setResults(response.data.searchResults);
+        setPager(response.pager);
+        setResults(response.searchResults);
       } else {
         console.log("started request");
         //do this since it needs to have the parameters
