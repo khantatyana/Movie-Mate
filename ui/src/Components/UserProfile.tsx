@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
+import { LinearProgress } from "@material-ui/core";
+import axios from "axios";
 import firebase from "firebase/app";
 import { makeStyles } from "@material-ui/core/styles";
 import ImageList from "@material-ui/core/ImageList";
 import ImageListItem from "@material-ui/core/ImageListItem";
 import ImageListItemBar from "@material-ui/core/ImageListItemBar";
-import IconButton from "@material-ui/core/IconButton";
-import items from "./wishlist";
 import { Link } from "react-router-dom";
+// import IconButton from "@material-ui/core/IconButton";
 
 export const UserProfile = (props) => {
   const useStyles = makeStyles((theme) => ({
@@ -33,7 +34,8 @@ export const UserProfile = (props) => {
   const classes = useStyles();
   const [currentUser] = useState(firebase.auth().currentUser);
   const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState(items);
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState(undefined);
   let wishList = null;
   let favorites = null;
 
@@ -41,10 +43,18 @@ export const UserProfile = (props) => {
     (async () => {
       console.log(userData);
       console.log(currentUser);
-      // getUserById API call
-      // setUserData(result)
+      try {
+        setLoading(true);
+        const { data } = await axios.get(`/users/${currentUser.uid}`);
+        console.log(data);
+        setUserData(data);
+        setLoading(false);
+      } catch (e) {
+        setError(e.messages);
+        console.log(error);
+      }
     })();
-  }, [currentUser, userData]);
+  }, [currentUser, userData, error]);
 
   const buildWishListItem = (result) => {
     return (
@@ -108,6 +118,13 @@ export const UserProfile = (props) => {
 
   return (
     <div>
+      <div>
+        {loading ? (
+          <LinearProgress color="secondary" />
+        ) : (
+          <div className="progress-placeholder"></div>
+        )}
+      </div>
       <div className="profile-header">
         <img src={currentUser.photoURL} alt="Profile" />
         <p>Name: {currentUser.displayName}</p>
