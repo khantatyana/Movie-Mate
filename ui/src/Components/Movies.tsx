@@ -37,8 +37,8 @@ export const Movies = (props) => {
         const response = await moviesService.explore(1, "g");
         console.log(response);
         setLoading(false);
-        setPager(response.data.pager);
-        setResults(response.data.searchResults);
+        setPager(response.pager);
+        setResults(response.searchResults);
       }
     })();
   }, [location.search]);
