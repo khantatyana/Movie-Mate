@@ -3,7 +3,6 @@ import { moviesService } from "../movies.service";
 
 import {
   Grid,
-  ButtonBase,
   makeStyles,
   Typography,
   Paper,
@@ -72,7 +71,7 @@ export const Movie = (props) => {
       <br></br>
       <Paper className={classes.paper}>
         <Grid container spacing={3}>
-          <Grid item>
+          <Grid item direction="column">
             <ImageListItem key={movieData.movieId}>
               {movieData.posterPath ? (
                 <img
@@ -86,13 +85,11 @@ export const Movie = (props) => {
               )}
             </ImageListItem>
             <br></br>
-            <Grid item xs={12} sm container>
-              <ButtonGroup>
-                <Button id="likeButton">Like</Button>
-                <Button id="wishlistButton">Add to Wishlist</Button>
-                <Button id="dislikeButton">Dislike</Button>
-              </ButtonGroup>
-            </Grid>
+            <ButtonGroup>
+              <Button id="likeButton">Like</Button>
+              <Button id="wishlistButton">Add to Wishlist</Button>
+              <Button id="dislikeButton">Dislike</Button>
+            </ButtonGroup>
           </Grid>
           <br></br>
           <Grid item xs={12} sm container>
