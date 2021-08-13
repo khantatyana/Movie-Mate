@@ -9,6 +9,7 @@ import {
   Paper,
   ButtonGroup,
   Button,
+  ImageListItem,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -18,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(2),
     margin: "auto",
-    maxWidth: 800,
+    maxWidth: "auto",
   },
   image: {
     width: 128,
@@ -70,15 +71,20 @@ export const Movie = (props) => {
     <div>
       <br></br>
       <Paper className={classes.paper}>
-        <Grid container spacing={5}>
+        <Grid container spacing={3}>
           <Grid item>
-            <ButtonBase className={classes.image}>
-              <img
-                className={movieData.title}
-                alt="No picture"
-                src={movieData.posterPath}
-              />
-            </ButtonBase>
+            <ImageListItem key={movieData.movieId}>
+              {movieData.posterPath ? (
+                <img
+                  src={
+                    "https://image.tmdb.org/t/p/w500/" + movieData.posterPath
+                  }
+                  alt={movieData.title}
+                />
+              ) : (
+                <p className="no-image-available">No image available</p>
+              )}
+            </ImageListItem>
             <br></br>
             <Grid item xs={12} sm container>
               <ButtonGroup>
@@ -92,20 +98,54 @@ export const Movie = (props) => {
           <Grid item xs={12} sm container>
             <Grid item xs container direction="column" spacing={2}>
               <Grid item xs>
-                <Typography gutterBottom variant="subtitle1">
+                <Typography gutterBottom variant="h2">
                   {movieData.title}
                 </Typography>
                 <Typography variant="body2" gutterBottom>
                   {movieData.plotSummary}
                 </Typography>
+                <br></br>
                 <Typography variant="body2" color="textSecondary">
-                  ID: 1030114
+                  Average Rating: {movieData.avgRating}
                 </Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="body2" style={{ cursor: "pointer" }}>
-                  Remove
+                <Typography variant="body2" color="textSecondary">
+                  Year Released: {movieData.releaseYear}
                 </Typography>
+                {movieData.directors && (
+                  <Grid
+                    item
+                    xs
+                    container
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item xs>
+                      Directors:
+                    </Grid>
+                    <Grid item xs>
+                      <Typography
+                        gutterBottom
+                        variant="body2"
+                        color="textSecondary"
+                      >
+                        {movieData.directors &&
+                          movieData.directors.map(function (director) {
+                            return <p>{director}</p>;
+                          })}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                )}
+                <br></br>
+                {movieData.genres && (
+                  <ButtonGroup>
+                    {movieData.genres &&
+                      movieData.genres.map(function (genre) {
+                        return <Button>{genre}</Button>;
+                      })}
+                  </ButtonGroup>
+                )}
               </Grid>
             </Grid>
             <Grid item>
