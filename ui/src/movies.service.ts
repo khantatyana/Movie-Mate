@@ -25,6 +25,17 @@ class MoviesService {
       return null;
     }
   }
+
+  async getMovieByID(id: number) {
+    const token = await this.getToken();
+    const response = await axios.get(`${BASE_URL}/movies/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  }
 }
 
 export const moviesService = new MoviesService();
