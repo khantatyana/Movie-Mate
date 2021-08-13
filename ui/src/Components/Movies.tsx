@@ -119,6 +119,14 @@ export const Movies = (props) => {
           </ImageListItem>
         ))}
       </ImageList>
+      <br></br>
+      {pager && results.length ? (
+        <Pagination
+          page={(pager as Pager)?.currentPage}
+          count={(pager as Pager)?.totalPages}
+          onChange={changePage}
+        />
+      ) : null}
     </div>
   );
 };
