@@ -14,6 +14,15 @@ router.get("/explore", async (req, res, next) => {
   }
 });
 
+router.get("/genres", async (req, res, next) => {
+  try {
+    const result = await data.movielens.getGenres();
+    res.json(result);
+  } catch (e) {
+    res.status(500).json(e);
+  }
+});
+
 router.get("/:id", async (req, res, next) => {
   try {
     const movieId = req.params.id;
