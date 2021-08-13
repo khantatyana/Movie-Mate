@@ -8,26 +8,32 @@ async function getUserById(userId) {
   if (!validators.isNonEmptyString(userId))
     throw "Please provide a valid user ID";
 
-  const user = await models.User.findById(userId).exec();
-  if (!user) throw `There is no user with the given ID: ${userId}`;
+  return await models.User.findById(userId).exec();
+}
+
+async function getOrCreate(userId, name, email) {
+  let user = await getUserById(userId);
+  if (!user) {
+    user = await createUser(userId, name, email);
+  }
   return user;
 }
 
-async function createUser(name, email) {
-  if (!validators.isLettersOnly(name))
-    throw "User name must be provided and contains only letters";
+async function createUser(userId, name, email) {
+  if (!validators.isNonEmptyString(userId))
+    throw "Please provide a valid user ID";
+  if (!validators.isNonEmptyString(name)) throw "User name must be provided";
   if (!validators.isValidEmail(email))
     throw "Please provide a valid email address";
 
-  const newUser = new models.User({ name, email });
+  const newUser = new models.User({ _id: userId, name, email });
   const createdUser = await saveSafely(newUser);
   return createdUser;
 }
 
 async function updateUser(id, name, email, pictureUrl) {
   if (!validators.isNonEmptyString(id)) throw "Please provide a valid user ID";
-  if (!validators.isLettersOnly(name))
-    throw "User name must be provided and contains only letters";
+  if (!validators.isNonEmptyString(name)) throw "User name must be provided";
   if (!validators.isValidEmail(email))
     throw "Please provide a valid email address";
 
@@ -112,6 +118,7 @@ async function saveSafely(document) {
 }
 
 module.exports = {
+  getOrCreate,
   getUserById,
   createUser,
   updateUser,
