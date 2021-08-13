@@ -32,9 +32,13 @@ export const Movies = (props) => {
         setPager(response.data.pager);
         setResults(response.data.searchResults);
       } else {
+        console.log("started request");
+        //do this since it needs to have the parameters
+        const response = await moviesService.explore(1, "g");
+        console.log(response);
         setLoading(false);
-        setPager(null);
-        setResults([]);
+        setPager(response.data.pager);
+        setResults(response.data.searchResults);
       }
     })();
   }, [location.search]);
