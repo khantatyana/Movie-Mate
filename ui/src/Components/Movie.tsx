@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { moviesService } from "../movies.service";
+import StarRatings from "react-star-ratings";
 
 import {
   Grid,
@@ -98,13 +99,31 @@ export const Movie = (props) => {
                 <Typography gutterBottom variant="h2">
                   {movieData.title}
                 </Typography>
-                <Typography variant="body2" gutterBottom>
-                  {movieData.plotSummary}
-                </Typography>
+                <StarRatings
+                  rating={movieData.avgRating}
+                  starRatedColor="yellow"
+                  numberOfStars={5}
+                  name="rating"
+                />
                 <br></br>
                 <Typography variant="body2" color="textSecondary">
                   Average Rating: {movieData.avgRating}
                 </Typography>
+                <br></br>
+                {movieData.genres && (
+                  <ButtonGroup>
+                    {movieData.genres &&
+                      movieData.genres.map(function (genre) {
+                        return <Button>{genre}</Button>;
+                      })}
+                  </ButtonGroup>
+                )}
+                <br></br>
+                <br></br>
+                <Typography variant="body2" gutterBottom>
+                  {movieData.plotSummary}
+                </Typography>
+                <br></br>
                 <Typography variant="body2" color="textSecondary">
                   Year Released: {movieData.releaseYear}
                 </Typography>
@@ -134,19 +153,7 @@ export const Movie = (props) => {
                     </Grid>
                   </Grid>
                 )}
-                <br></br>
-                {movieData.genres && (
-                  <ButtonGroup>
-                    {movieData.genres &&
-                      movieData.genres.map(function (genre) {
-                        return <Button>{genre}</Button>;
-                      })}
-                  </ButtonGroup>
-                )}
               </Grid>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle1">$19.00</Typography>
             </Grid>
           </Grid>
         </Grid>
