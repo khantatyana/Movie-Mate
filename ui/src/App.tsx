@@ -13,6 +13,7 @@ import "firebase/auth";
 import "./App.css";
 import { Movies } from "./Components/Movies";
 import { NotFound } from "./Components/NotFound";
+import { UserProfile } from "./Components/UserProfile";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
@@ -59,6 +60,9 @@ function App() {
             <Typography variant="h6">
               <Link to="/movies">Movie Mate</Link>
             </Typography>
+            <Typography variant="h6">
+              <Link to="/profile">Profile</Link>
+            </Typography>
             {authenticated ? (
               <Button color="inherit" onClick={() => firebase.auth().signOut()}>
                 Sign-out
@@ -72,6 +76,7 @@ function App() {
               <Route exact path="/movies" component={Movies} />
               <Route exact path="/movies/:movieId" component={Movie} />
               <Route exact path="/404" component={NotFound} />
+              <Route exact path="/profile" component={UserProfile} />
               <Redirect from="" to="/movies" />
             </Switch>
           </div>
