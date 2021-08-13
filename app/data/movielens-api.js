@@ -14,10 +14,14 @@ async function movieLensLogin() {
 movieLensLogin();
 
 module.exports = {
-  async queryMovies(query, genre) {
+  async queryMovies(query) {
     if (!query) return [];
-
     return (await movielens.explore(cookie, query)).data;
+  },
+
+  async getGenres() {
+    const response = await movielens.getGenres(cookie);
+    return Object.keys(response.data.numMoviesPerGenre);
   },
 
   async getMovieById(movielensId) {
