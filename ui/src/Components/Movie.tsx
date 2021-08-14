@@ -45,7 +45,8 @@ export const Movie = (props) => {
         const response = await moviesService.getMovieByID(
           props.match.params.movieId
         );
-        setMovieData(response.movieDetails.movie);
+        console.log(response);
+        setMovieData(response);
         setLoading(false);
         console.log(movieData);
       } catch (e) {
@@ -72,14 +73,15 @@ export const Movie = (props) => {
       <br></br>
       <Paper className={classes.paper}>
         <Grid container spacing={3}>
-          <Grid item direction="column">
-            <ImageListItem key={movieData.movieId}>
-              {movieData.posterPath ? (
+          <Grid item>
+            <ImageListItem key={movieData.movieDetails.movie.movieId}>
+              {movieData.movieDetails.movie.posterPath ? (
                 <img
                   src={
-                    "https://image.tmdb.org/t/p/w500/" + movieData.posterPath
+                    "https://image.tmdb.org/t/p/w500/" +
+                    movieData.movieDetails.movie.posterPath
                   }
-                  alt={movieData.title}
+                  alt={movieData.movieDetails.movie.title}
                 />
               ) : (
                 <p className="no-image-available">No image available</p>
@@ -97,23 +99,23 @@ export const Movie = (props) => {
             <Grid item xs container direction="column" spacing={2}>
               <Grid item xs>
                 <Typography gutterBottom variant="h2">
-                  {movieData.title}
+                  {movieData.movieDetails.movie.title}
                 </Typography>
                 <StarRatings
-                  rating={movieData.avgRating}
+                  rating={movieData.movieDetails.movie.avgRating}
                   starRatedColor="yellow"
                   numberOfStars={5}
                   name="rating"
                 />
                 <br></br>
                 <Typography variant="body2" color="textSecondary">
-                  Average Rating: {movieData.avgRating}
+                  Average Rating: {movieData.movieDetails.movie.avgRating}
                 </Typography>
                 <br></br>
-                {movieData.genres && (
+                {movieData.movieDetails.movie.genres && (
                   <ButtonGroup>
-                    {movieData.genres &&
-                      movieData.genres.map(function (genre) {
+                    {movieData.movieDetails.movie.genres &&
+                      movieData.movieDetails.movie.genres.map(function (genre) {
                         return <Button>{genre}</Button>;
                       })}
                   </ButtonGroup>
@@ -121,13 +123,13 @@ export const Movie = (props) => {
                 <br></br>
                 <br></br>
                 <Typography variant="body2" gutterBottom>
-                  {movieData.plotSummary}
+                  {movieData.movieDetails.movie.plotSummary}
                 </Typography>
                 <br></br>
                 <Typography variant="body2" color="textSecondary">
-                  Year Released: {movieData.releaseYear}
+                  Year Released: {movieData.movieDetails.movie.releaseYear}
                 </Typography>
-                {movieData.directors && (
+                {movieData.movieDetails.movie.directors && (
                   <Grid
                     item
                     xs
@@ -145,13 +147,30 @@ export const Movie = (props) => {
                         variant="body2"
                         color="textSecondary"
                       >
-                        {movieData.directors &&
-                          movieData.directors.map(function (director) {
+                        {movieData.movieDetails.movie.directors &&
+                          movieData.movieDetails.movie.directors.map(function (
+                            director
+                          ) {
                             return <p>{director}</p>;
                           })}
                       </Typography>
                     </Grid>
                   </Grid>
+                )}
+                <br></br>
+                <h3>Comments:</h3>
+                <br></br>
+                {movieData.comments.length > 0 ? (
+                  movieData.comments.map(function (comment) {
+                    return (
+                      <div>
+                        <Paper className={classes.paper}>Hello</Paper>
+                        <br></br>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>No comments</p>
                 )}
               </Grid>
             </Grid>
