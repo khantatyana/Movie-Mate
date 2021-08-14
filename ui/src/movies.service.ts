@@ -39,6 +39,17 @@ class MoviesService {
     });
     return response.data;
   }
+  async addComment(id: number, Enteredcomment: String) {
+    const token = await this.getToken();
+    const response = await axios.post(`${BASE_URL}/movies/${id}/comments`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      comment: Enteredcomment,
+    });
+    return response.data;
+  }
 }
 
 export const moviesService = new MoviesService();

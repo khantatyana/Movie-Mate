@@ -35,8 +35,14 @@ const useStyles = makeStyles((theme) => ({
 
 export const Movie = (props) => {
   const [movieData, setMovieData] = useState(undefined);
+  const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
   const classes = useStyles();
+
+  const handleChangedComment = (event) => {
+    setComment(event.target.value);
+  };
+
   useEffect(() => {
     console.log("useEffect fired");
     async function fetchData() {
@@ -56,15 +62,6 @@ export const Movie = (props) => {
     fetchData();
   }, [props.match.params.id]);
 
-  //grab the movie title,
-
-  //grab the movie description, year released, etc.
-
-  //like button
-  //dislike button
-  //add to wishlist button
-
-  //show comments
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -172,6 +169,30 @@ export const Movie = (props) => {
                 ) : (
                   <p>No comments</p>
                 )}
+                <br></br>
+                <h3>Add a comment:</h3>
+                <Paper className={classes.paper}>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      moviesService.addComment(
+                        props.match.params.movieId,
+                        comment
+                      );
+                      alert("Comment Added");
+                    }}
+                  >
+                    <label>
+                      <input
+                        type="text"
+                        name="comment"
+                        onChange={handleChangedComment}
+                        value={comment}
+                      ></input>
+                    </label>
+                    <input type="submit" value="Submit"></input>
+                  </form>
+                </Paper>
               </Grid>
             </Grid>
           </Grid>
