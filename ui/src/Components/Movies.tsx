@@ -7,35 +7,48 @@ import ImageList from "@material-ui/core/ImageList";
 import ImageListItem from "@material-ui/core/ImageListItem";
 import ImageListItemBar from "@material-ui/core/ImageListItemBar";
 import Pagination from "@material-ui/lab/Pagination";
+import Chip from "@material-ui/core/Chip";
+import Button from "@material-ui/core/Button";
 
 let timer = null;
 
 export const Movies = (props) => {
   const location = useLocation();
   const [results, setResults] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [pager, setPager] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
+      const response = await moviesService.getGenres();
+      setGenres(response);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
       const params = new URLSearchParams(location.search);
-      const page = +params.get("page");
+      const page = +params.get("page") || 1;
       const q = params.get("q");
+      const genre = params.get("genre");
       const input = document.querySelector("input");
       input.value = q;
 
-      setLoading(true);
+      const searchParams = { page, maxDaysAgo: 180 };
 
-      if (page && q) {
-        const response = await moviesService.explore(page, q);
-        setLoading(false);
-        setPager(response.data.pager);
-        setResults(response.data.searchResults);
-      } else {
-        setLoading(false);
-        setPager(null);
-        setResults([]);
+      if (q || genre) {
+        delete searchParams["maxDaysAgo"];
+
+        if (q) searchParams["q"] = q;
+        if (genre) searchParams["genre"] = genre;
       }
+
+      setLoading(true);
+      const response = await moviesService.explore(searchParams);
+      setLoading(false);
+      setPager(response.pager);
+      setResults(response.searchResults);
     })();
   }, [location.search]);
 
@@ -47,19 +60,34 @@ export const Movies = (props) => {
     timer = setTimeout(() => {
       const q = e.target.value;
 
+      const params = new URLSearchParams(location.search);
+
       if (!q) {
-        props.history.replace("movies");
+        params.delete("q");
       } else {
-        props.history.replace(
-          `/movies?${new URLSearchParams({ page: "1", q })}`
-        );
+        params.set("q", q);
+        params.set("page", "1");
       }
+
+      props.history.replace(`/movies?${params}`);
     }, 500);
   };
 
   const changePage = (_: any, page: number) => {
     const params = new URLSearchParams(location.search);
     params.set("page", page.toString());
+    props.history.replace(`/movies?${params}`);
+  };
+
+  const selectGenre = (e) => {
+    const params = new URLSearchParams(location.search);
+    params.set("genre", e.target.textContent.toLowerCase());
+    props.history.replace(`/movies?${params}`);
+  };
+
+  const deselectGenre = (e) => {
+    const params = new URLSearchParams(location.search);
+    params.delete("genre");
     props.history.replace(`/movies?${params}`);
   };
 
@@ -71,6 +99,15 @@ export const Movies = (props) => {
         ) : (
           <div className="progress-placeholder"></div>
         )}
+      </div>
+
+      <div className="chips">
+        <Button variant="contained" color="primary" onClick={deselectGenre}>
+          Clear Genre
+        </Button>
+        {genres.map((genre) => {
+          return <Chip key={genre} label={genre} onClick={selectGenre} />;
+        })}
       </div>
 
       <TextField
@@ -119,6 +156,14 @@ export const Movies = (props) => {
           </ImageListItem>
         ))}
       </ImageList>
+      <br></br>
+      {pager && results.length ? (
+        <Pagination
+          page={(pager as Pager)?.currentPage}
+          count={(pager as Pager)?.totalPages}
+          onChange={changePage}
+        />
+      ) : null}
     </div>
   );
 };

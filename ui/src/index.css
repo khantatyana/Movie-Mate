@@ -50,3 +50,11 @@ code {
 .no-image-available {
   height: 500px;
 }
+
+.chips {
+  margin-top: 16px;
+}
+
+.chips > * {
+  margin: 0 8px 8px 0 !important;
+}
