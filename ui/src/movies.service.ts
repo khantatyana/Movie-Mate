@@ -5,9 +5,21 @@ import { ExploreResponse } from "./models";
 const BASE_URL = "http://localhost:4200";
 
 class MoviesService {
-  async explore(page: number, q: string): Promise<ExploreResponse> {
+  async explore(params: {
+    page: number;
+    q?: string;
+    maxDaysAgo?: number;
+    genre?: string;
+  }): Promise<ExploreResponse> {
     const token = await this.getToken();
-    const searchParams = new URLSearchParams({ page: page.toString(), q: q });
+
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set("page", params.page.toString());
+    if (params.q) searchParams.set("q", params.q);
+    if (params.maxDaysAgo)
+      searchParams.set("maxDaysAgo", params.maxDaysAgo.toString());
+    if (params.genre) searchParams.set("genre", params.genre);
+
     const response = await axios.get(
       `${BASE_URL}/movies/explore?${searchParams}`,
       {
@@ -17,6 +29,18 @@ class MoviesService {
         },
       }
     );
+    return response.data;
+  }
+
+  async getGenres(): Promise<string[]> {
+    const token = await this.getToken();
+
+    const response = await axios.get(`${BASE_URL}/movies/genres`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   }
 
