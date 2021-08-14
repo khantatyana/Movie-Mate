@@ -60,7 +60,7 @@ export const Movie = (props) => {
       }
     }
     fetchData();
-  }, [props.match.params.id]);
+  }, [props.match.params.movieId]);
 
   if (loading) {
     return <div>Loading...</div>;
