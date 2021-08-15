@@ -33,6 +33,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+async function addToLike(id) {
+  await moviesService.addLike(id);
+}
+async function addToDislike(id) {
+  await moviesService.addDislike(id);
+}
+async function addToWishlist(id) {
+  await moviesService.addToWishlist(id);
+}
+
 export const Movie = (props) => {
   const [movieData, setMovieData] = useState(undefined);
   const [comment, setComment] = useState("");
@@ -86,9 +96,24 @@ export const Movie = (props) => {
             </ImageListItem>
             <br></br>
             <ButtonGroup>
-              <Button id="likeButton">Like</Button>
-              <Button id="wishlistButton">Add to Wishlist</Button>
-              <Button id="dislikeButton">Dislike</Button>
+              <Button
+                id="likeButton"
+                onClick={() => addToLike(movieData.movieDetails.movieId)}
+              >
+                Like
+              </Button>
+              <Button
+                id="wishlistButton"
+                onClick={() => addToWishlist(movieData.movieDetails.movieId)}
+              >
+                Add to Wishlist
+              </Button>
+              <Button
+                id="dislikeButton"
+                onClick={() => addToDislike(movieData.movieDetails.movieId)}
+              >
+                Dislike
+              </Button>
             </ButtonGroup>
           </Grid>
           <br></br>

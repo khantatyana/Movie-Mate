@@ -76,6 +76,48 @@ class MoviesService {
     });
     return response.data;
   }
+
+  async addLike(id: number) {
+    //todo will need to check if the movie is already disliked, and if so then remove it
+    const token = await this.getToken();
+    const response = await axios.post(
+      `${BASE_URL}/users/${token}/likedMovies/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log(response.data);
+    return response.data;
+  }
+  async addDislike(id: number) {
+    const token = await this.getToken();
+    const response = await axios.post(
+      `${BASE_URL}/users/${token}/dislikedMovies/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  }
+  async addToWishlist(id: number) {
+    const token = await this.getToken();
+    const response = await axios.post(
+      `${BASE_URL}/users/${token}/wishMovies/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  }
 }
 
 export const moviesService = new MoviesService();
