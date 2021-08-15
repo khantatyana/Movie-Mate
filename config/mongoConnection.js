@@ -3,10 +3,15 @@ let _connection = undefined;
 
 module.exports = async () => {
   if (!_connection) {
-    await mongoose.connect(process.env.DATABASE_CONNECTION_STRING, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(
+      process.env.MONGODB_URI || "mongodb://localhost:27017/movie-mate",
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        useFindAndModify: false,
+      }
+    );
     _connection = mongoose.connection;
   }
   return _connection;
