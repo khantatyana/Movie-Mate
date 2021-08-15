@@ -70,7 +70,9 @@ class MoviesService {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      comment: Enteredcomment,
+      data: {
+        comment: Enteredcomment,
+      },
     });
     return response.data;
   }
