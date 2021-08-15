@@ -31,6 +31,12 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "100%",
     maxHeight: "100%",
   },
+  NonClickedButton: {
+    background: "#ffffff",
+  },
+  ClickedButton: {
+    background: "#00cc00",
+  },
 }));
 
 async function addToLike(id) {
@@ -45,13 +51,24 @@ async function addToWishlist(id) {
 
 export const Movie = (props) => {
   const [movieData, setMovieData] = useState(undefined);
+  const [likeButtonClicked, setLikeButtonClicked] = useState(false);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
   const classes = useStyles();
+  let btnClass = classes.NonClickedButton;
 
   const handleChangedComment = (event) => {
     setComment(event.target.value);
   };
+
+  useEffect(() => {
+    console.log("button changed");
+    btnClass =
+      likeButtonClicked === false
+        ? classes.NonClickedButton
+        : classes.ClickedButton;
+    console.log(btnClass);
+  }, [likeButtonClicked]);
 
   useEffect(() => {
     console.log("useEffect fired");
@@ -97,8 +114,11 @@ export const Movie = (props) => {
             <br></br>
             <ButtonGroup>
               <Button
-                id="likeButton"
-                onClick={() => addToLike(movieData.movieDetails.movieId)}
+                className={btnClass}
+                onClick={() => {
+                  addToLike(movieData.movieDetails.movieId);
+                  setLikeButtonClicked(true);
+                }}
               >
                 Like
               </Button>
@@ -186,7 +206,9 @@ export const Movie = (props) => {
                   movieData.comments.map(function (comment) {
                     return (
                       <div>
-                        <Paper className={classes.paper}>Hello</Paper>
+                        <Paper className={classes.paper}>
+                          {comment.comment}
+                        </Paper>
                         <br></br>
                       </div>
                     );

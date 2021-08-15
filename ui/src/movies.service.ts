@@ -65,15 +65,19 @@ class MoviesService {
   }
   async addComment(id: number, Enteredcomment: String) {
     const token = await this.getToken();
-    const response = await axios.post(`${BASE_URL}/movies/${id}/comments`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      data: {
+    console.log(token);
+    const response = await axios.post(
+      `${BASE_URL}/movies/${id}/comments`,
+      {
         comment: Enteredcomment,
       },
-    });
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   }
 
