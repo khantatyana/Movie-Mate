@@ -42,16 +42,27 @@ const useStyles = makeStyles((theme) => ({
 async function addToLike(id) {
   await moviesService.addLike(id);
 }
+async function deleteFromLike(id) {
+  await moviesService.deleteLike(id);
+}
 async function addToDislike(id) {
   await moviesService.addDislike(id);
 }
+async function deleteFromDislike(id) {
+  await moviesService.deleteDislike(id);
+}
 async function addToWishlist(id) {
   await moviesService.addToWishlist(id);
+}
+async function deleteFromWish(id) {
+  await moviesService.deleteWishlist(id);
 }
 
 export const Movie = (props) => {
   const [movieData, setMovieData] = useState(undefined);
   const [likeButtonClicked, setLikeButtonClicked] = useState(false);
+  const [dislikeButtonClicked, setDislikeButtonClicked] = useState(false);
+  const [wishButtonClicked, setwishButtonClicked] = useState(false);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
   const classes = useStyles();
@@ -113,27 +124,69 @@ export const Movie = (props) => {
             </ImageListItem>
             <br></br>
             <ButtonGroup>
-              <Button
-                className={btnClass}
-                onClick={() => {
-                  addToLike(movieData.movieDetails.movieId);
-                  setLikeButtonClicked(true);
-                }}
-              >
-                Like
-              </Button>
-              <Button
-                id="wishlistButton"
-                onClick={() => addToWishlist(movieData.movieDetails.movieId)}
-              >
-                Add to Wishlist
-              </Button>
-              <Button
-                id="dislikeButton"
-                onClick={() => addToDislike(movieData.movieDetails.movieId)}
-              >
-                Dislike
-              </Button>
+              {likeButtonClicked == true ? (
+                <Button
+                  className={btnClass}
+                  onClick={() => {
+                    addToLike(movieData.movieDetails.movieId);
+                    setLikeButtonClicked(true);
+                  }}
+                >
+                  Undo Like
+                </Button>
+              ) : (
+                <Button
+                  className={btnClass}
+                  onClick={() => {
+                    deleteFromLike(movieData.movieDetails.movieId);
+                    setLikeButtonClicked(false);
+                  }}
+                >
+                  Like
+                </Button>
+              )}
+              {wishButtonClicked == true ? (
+                <Button
+                  className={btnClass}
+                  onClick={() => {
+                    addToWishlist(movieData.movieDetails.movieId);
+                    setwishButtonClicked(true);
+                  }}
+                >
+                  Remove to Wishlist
+                </Button>
+              ) : (
+                <Button
+                  className={btnClass}
+                  onClick={() => {
+                    deleteFromWish(movieData.movieDetails.movieId);
+                    setwishButtonClicked(false);
+                  }}
+                >
+                  Add from Wishlist
+                </Button>
+              )}
+              {dislikeButtonClicked == true ? (
+                <Button
+                  className={btnClass}
+                  onClick={() => {
+                    addToDislike(movieData.movieDetails.movieId);
+                    setDislikeButtonClicked(true);
+                  }}
+                >
+                  Undo Dislike
+                </Button>
+              ) : (
+                <Button
+                  className={btnClass}
+                  onClick={() => {
+                    deleteFromDislike(movieData.movieDetails.movieId);
+                    setDislikeButtonClicked(false);
+                  }}
+                >
+                  Dislike
+                </Button>
+              )}
             </ButtonGroup>
           </Grid>
           <br></br>
