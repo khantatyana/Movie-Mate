@@ -84,8 +84,10 @@ class MoviesService {
   async addLike(id: number) {
     //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
+    const user = firebase.auth().currentUser;
     const response = await axios.post(
-      `${BASE_URL}/users/${token}/likedMovies/${id}`,
+      `${BASE_URL}/users/${user.uid}/likedMovies/${id}`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
@@ -93,13 +95,14 @@ class MoviesService {
         },
       }
     );
-    console.log(response.data);
     return response.data;
   }
   async addDislike(id: number) {
     const token = await this.getToken();
+    const user = firebase.auth().currentUser;
     const response = await axios.post(
-      `${BASE_URL}/users/${token}/dislikedMovies/${id}`,
+      `${BASE_URL}/users/${user.uid}/dislikedMovies/${id}`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
@@ -111,8 +114,10 @@ class MoviesService {
   }
   async addToWishlist(id: number) {
     const token = await this.getToken();
+    const user = firebase.auth().currentUser;
     const response = await axios.post(
-      `${BASE_URL}/users/${token}/wishMovies/${id}`,
+      `${BASE_URL}/users/${user.uid}/wishMovies/${id}`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
