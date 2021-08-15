@@ -34,8 +34,14 @@ const useStyles = makeStyles((theme) => ({
   NonClickedButton: {
     background: "#ffffff",
   },
-  ClickedButton: {
+  ClickedLikeButton: {
     background: "#00cc00",
+  },
+  ClickedDislikeButton: {
+    background: "#ff0000",
+  },
+  ClickedWishButton: {
+    background: "#ffd000",
   },
 }));
 
@@ -72,14 +78,14 @@ export const Movie = (props) => {
     setComment(event.target.value);
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     console.log("button changed");
     btnClass =
       likeButtonClicked === false
         ? classes.NonClickedButton
-        : classes.ClickedButton;
+        : classes.ClickedLikeButton;
     console.log(btnClass);
-  }, [likeButtonClicked]);
+  }, [likeButtonClicked]);*/
 
   useEffect(() => {
     console.log("useEffect fired");
@@ -98,7 +104,12 @@ export const Movie = (props) => {
       }
     }
     fetchData();
-  }, [props.match.params.movieId]);
+  }, [
+    props.match.params.movieId,
+    likeButtonClicked,
+    dislikeButtonClicked,
+    wishButtonClicked,
+  ]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -124,11 +135,11 @@ export const Movie = (props) => {
             </ImageListItem>
             <br></br>
             <ButtonGroup>
-              {likeButtonClicked == true ? (
+              {likeButtonClicked === false ? (
                 <Button
-                  className={btnClass}
+                  className={classes.ClickedLikeButton}
                   onClick={() => {
-                    addToLike(movieData.movieDetails.movieId);
+                    deleteFromLike(movieData.movieDetails.movieId);
                     setLikeButtonClicked(true);
                   }}
                 >
@@ -138,39 +149,39 @@ export const Movie = (props) => {
                 <Button
                   className={btnClass}
                   onClick={() => {
-                    deleteFromLike(movieData.movieDetails.movieId);
+                    addToLike(movieData.movieDetails.movieId);
                     setLikeButtonClicked(false);
                   }}
                 >
                   Like
                 </Button>
               )}
-              {wishButtonClicked == true ? (
+              {wishButtonClicked === false ? (
                 <Button
-                  className={btnClass}
+                  className={classes.ClickedWishButton}
                   onClick={() => {
-                    addToWishlist(movieData.movieDetails.movieId);
+                    deleteFromWish(movieData.movieDetails.movieId);
                     setwishButtonClicked(true);
                   }}
                 >
-                  Remove to Wishlist
+                  Remove from Wishlist
                 </Button>
               ) : (
                 <Button
                   className={btnClass}
                   onClick={() => {
-                    deleteFromWish(movieData.movieDetails.movieId);
+                    addToWishlist(movieData.movieDetails.movieId);
                     setwishButtonClicked(false);
                   }}
                 >
-                  Add from Wishlist
+                  Add to Wishlist
                 </Button>
               )}
-              {dislikeButtonClicked == true ? (
+              {dislikeButtonClicked === false ? (
                 <Button
-                  className={btnClass}
+                  className={classes.ClickedDislikeButton}
                   onClick={() => {
-                    addToDislike(movieData.movieDetails.movieId);
+                    deleteFromDislike(movieData.movieDetails.movieId);
                     setDislikeButtonClicked(true);
                   }}
                 >
@@ -180,7 +191,7 @@ export const Movie = (props) => {
                 <Button
                   className={btnClass}
                   onClick={() => {
-                    deleteFromDislike(movieData.movieDetails.movieId);
+                    addToDislike(movieData.movieDetails.movieId);
                     setDislikeButtonClicked(false);
                   }}
                 >
