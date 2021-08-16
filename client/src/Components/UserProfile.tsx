@@ -6,7 +6,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import ImageList from "@material-ui/core/ImageList";
 import ImageListItem from "@material-ui/core/ImageListItem";
 import ImageListItemBar from "@material-ui/core/ImageListItemBar";
+import Avatar from "@material-ui/core/Avatar";
+import Grid from "@material-ui/core/Grid";
 import { Link } from "react-router-dom";
+import Button from "@material-ui/core/Button";
+import EditFormModal from "./EditFormModal";
 // import IconButton from "@material-ui/core/IconButton";
 
 export const UserProfile = (props) => {
@@ -28,6 +32,21 @@ export const UserProfile = (props) => {
     },
     titleBar: {
       background: "white",
+    },
+    large: {
+      width: theme.spacing(24),
+      height: theme.spacing(24),
+      margin: theme.spacing(4, 3),
+    },
+    header: {
+      margin: theme.spacing(4, 3),
+    },
+    border: {
+      border: 2,
+      borderColor: "blue",
+      borderStyle: "solid",
+      borderRadius: 16,
+      padding: theme.spacing(2, 2),
     },
   }));
 
@@ -136,11 +155,26 @@ export const UserProfile = (props) => {
           <div className="progress-placeholder"></div>
         )}
       </div>
-      <div className="profile-header">
-        <img src={currentUser.photoURL} alt="Profile" />
-        <p>Name: {currentUser.displayName}</p>
-        <p>Email: {currentUser.email}</p>
-      </div>
+      <Grid
+        container
+        direction="row"
+        justifyContent="space-around"
+        alignItems="center"
+      >
+        <Avatar
+          alt="Profile"
+          src={currentUser.photoURL}
+          className={classes.large}
+        />
+        <div className={classes.border}>
+          <p>Name: {currentUser.displayName}</p>
+          <p>Email: {currentUser.email}</p>
+        </div>
+        <EditFormModal
+          name={currentUser.displayName}
+          email={currentUser.email}
+        />
+      </Grid>
       <h2> My Favorites </h2>
       <div className={classes.root}>
         <ImageList className={classes.imageList} rowHeight={350} cols={4}>
