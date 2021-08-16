@@ -1,4 +1,4 @@
-# Movie-Mate
+# Movie-Mate Recommendation Site
 CS-554 Summer 2021 Project
 
 Local Development Instructions
