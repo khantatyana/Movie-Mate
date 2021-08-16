@@ -78,14 +78,26 @@ export const Movie = (props) => {
     setComment(event.target.value);
   };
 
-  /*useEffect(() => {
-    console.log("button changed");
+  useEffect(() => {
     btnClass =
       likeButtonClicked === false
         ? classes.NonClickedButton
         : classes.ClickedLikeButton;
-    console.log(btnClass);
-  }, [likeButtonClicked]);*/
+  }, [likeButtonClicked]);
+
+  useEffect(() => {
+    btnClass =
+      dislikeButtonClicked === false
+        ? classes.NonClickedButton
+        : classes.ClickedDislikeButton;
+  }, [dislikeButtonClicked]);
+
+  useEffect(() => {
+    btnClass =
+      wishButtonClicked === false
+        ? classes.NonClickedButton
+        : classes.ClickedWishButton;
+  }, [wishButtonClicked]);
 
   useEffect(() => {
     console.log("useEffect fired");
@@ -104,12 +116,7 @@ export const Movie = (props) => {
       }
     }
     fetchData();
-  }, [
-    props.match.params.movieId,
-    likeButtonClicked,
-    dislikeButtonClicked,
-    wishButtonClicked,
-  ]);
+  }, [props.match.params.movieId]);
 
   if (loading) {
     return <div>Loading...</div>;
