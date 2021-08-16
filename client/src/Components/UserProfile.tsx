@@ -39,22 +39,37 @@ export const UserProfile = (props) => {
   let wishList = null;
   let favorites = null;
 
+  const getToken = async () => {
+    try {
+      const user = firebase.auth().currentUser;
+      return await user.getIdToken();
+    } catch (e) {
+      return null;
+    }
+  };
+
   useEffect(() => {
     (async () => {
-      console.log(userData);
-      console.log(currentUser);
       try {
+        const token = await getToken();
+        console.log(token);
         setLoading(true);
-        const { data } = await axios.get(`/users/${currentUser.uid}`);
-        console.log(data);
-        setUserData(data);
+        let url = `http://localhost:4200/users/${currentUser.uid}`;
+        const response = await axios.get(url, {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data);
+        setUserData(response.data);
         setLoading(false);
       } catch (e) {
         setError(e.messages);
         console.log(error);
       }
     })();
-  }, [currentUser, userData, error]);
+  }, [currentUser, error]);
 
   const buildWishListItem = (result) => {
     return (
@@ -100,20 +115,16 @@ export const UserProfile = (props) => {
     );
   };
 
-  if (userData.wishList) {
-    wishList =
-      userData &&
-      userData.wishList.map((item) => {
-        return buildWishListItem(item);
-      });
+  if (userData && userData.wishMovies.length > 1) {
+    wishList = userData.wishList.map((item) => {
+      return buildWishListItem(item);
+    });
   }
 
-  if (userData.favorites) {
-    favorites =
-      userData &&
-      userData.favorites.map((item) => {
-        return buildFavListItem(item);
-      });
+  if (userData && userData.likedMovies.length > 1) {
+    favorites = userData.favorites.map((item) => {
+      return buildFavListItem(item);
+    });
   }
 
   return (
