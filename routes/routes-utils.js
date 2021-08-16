@@ -12,12 +12,9 @@ async function authenticateUser(req, res) {
 
 async function authorizeUser(userId, req, res) {
   if (userId !== req.user._id) {
-    res
-      .status(403)
-      .json({
-        error:
-          "You must be the owner of the resource to perform this operation.",
-      });
+    res.status(403).json({
+      error: "You must be the owner of the resource to perform this operation.",
+    });
     return false;
   }
   return true;
