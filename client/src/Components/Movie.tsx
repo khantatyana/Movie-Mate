@@ -221,8 +221,11 @@ export const Movie = (props) => {
                 {movieData.movieDetails.movie.genres && (
                   <ButtonGroup>
                     {movieData.movieDetails.movie.genres &&
-                      movieData.movieDetails.movie.genres.map(function (genre) {
-                        return <Button>{genre}</Button>;
+                      movieData.movieDetails.movie.genres.map(function (
+                        genre,
+                        index
+                      ) {
+                        return <Button key={index}>{genre}</Button>;
                       })}
                   </ButtonGroup>
                 )}
@@ -255,9 +258,10 @@ export const Movie = (props) => {
                       >
                         {movieData.movieDetails.movie.directors &&
                           movieData.movieDetails.movie.directors.map(function (
-                            director
+                            director,
+                            index
                           ) {
-                            return <p>{director}</p>;
+                            return <p key={index}>{director}</p>;
                           })}
                       </Typography>
                     </Grid>
@@ -267,10 +271,10 @@ export const Movie = (props) => {
                 <h3>Comments:</h3>
                 <br></br>
                 {movieData.comments.length > 0 ? (
-                  movieData.comments.map(function (comment) {
+                  movieData.comments.map(function (comment, index) {
                     return (
                       <div>
-                        <Paper className={classes.paper}>
+                        <Paper className={classes.paper} key={index}>
                           {comment.comment}
                         </Paper>
                         <br></br>
