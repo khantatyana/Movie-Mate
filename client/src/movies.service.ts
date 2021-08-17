@@ -84,7 +84,6 @@ class MoviesService {
   }
 
   async addLike(id: number) {
-    //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
     const user = firebase.auth().currentUser;
     const response = await axios.post(
@@ -100,7 +99,6 @@ class MoviesService {
     return response.data;
   }
   async deleteLike(id: number) {
-    //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
     const user = firebase.auth().currentUser;
     const response = await axios.delete(
@@ -130,7 +128,6 @@ class MoviesService {
     return response.data;
   }
   async deleteDislike(id: number) {
-    //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
     const user = firebase.auth().currentUser;
     const response = await axios.delete(
@@ -160,7 +157,6 @@ class MoviesService {
     return response.data;
   }
   async deleteWishlist(id: number) {
-    //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
     const user = firebase.auth().currentUser;
     const response = await axios.delete(
