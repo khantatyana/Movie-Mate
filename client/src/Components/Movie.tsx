@@ -69,6 +69,7 @@ export const Movie = (props) => {
   const [likeButtonClicked, setLikeButtonClicked] = useState(false);
   const [dislikeButtonClicked, setDislikeButtonClicked] = useState(false);
   const [wishButtonClicked, setwishButtonClicked] = useState(false);
+  const [commentAdded, setCommentAdded] = useState(false);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
   const classes = useStyles();
@@ -110,6 +111,7 @@ export const Movie = (props) => {
         console.log(response);
         setMovieData(response);
         setLoading(false);
+        setCommentAdded(false);
         setLikeButtonClicked(response.userLiked);
         setDislikeButtonClicked(response.userDisliked);
         setwishButtonClicked(response.userWish);
@@ -122,7 +124,7 @@ export const Movie = (props) => {
       }
     }
     fetchData();
-  }, [props.match.params.movieId]);
+  }, [props.match.params.movieId, commentAdded]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -307,7 +309,7 @@ export const Movie = (props) => {
                         props.match.params.movieId,
                         comment
                       );
-                      alert("Comment Added");
+                      setCommentAdded(true);
                     }}
                   >
                     <label>
