@@ -24,7 +24,8 @@ const dbConnection = mongooseConnection();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.static("client/build"));
+app.use(express.static("client/public"));
 app.use(async (req, res, next) => {
   try {
     const authToken = req.headers.authorization.replace("Bearer ", "");
