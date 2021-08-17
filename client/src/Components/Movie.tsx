@@ -110,6 +110,12 @@ export const Movie = (props) => {
         console.log(response);
         setMovieData(response);
         setLoading(false);
+        setLikeButtonClicked(response.userLiked);
+        setDislikeButtonClicked(response.userDisliked);
+        setwishButtonClicked(response.userWish);
+        console.log(likeButtonClicked);
+        console.log(dislikeButtonClicked);
+        console.log(wishButtonClicked);
         console.log(movieData);
       } catch (e) {
         console.log(e);
@@ -142,12 +148,12 @@ export const Movie = (props) => {
             </ImageListItem>
             <br></br>
             <ButtonGroup>
-              {likeButtonClicked === false ? (
+              {likeButtonClicked === true ? (
                 <Button
                   className={classes.ClickedLikeButton}
                   onClick={() => {
                     deleteFromLike(movieData.movieDetails.movieId);
-                    setLikeButtonClicked(true);
+                    setLikeButtonClicked(false);
                   }}
                 >
                   Undo Like
@@ -157,18 +163,18 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToLike(movieData.movieDetails.movieId);
-                    setLikeButtonClicked(false);
+                    setLikeButtonClicked(true);
                   }}
                 >
                   Like
                 </Button>
               )}
-              {wishButtonClicked === false ? (
+              {wishButtonClicked === true ? (
                 <Button
                   className={classes.ClickedWishButton}
                   onClick={() => {
                     deleteFromWish(movieData.movieDetails.movieId);
-                    setwishButtonClicked(true);
+                    setwishButtonClicked(false);
                   }}
                 >
                   Remove from Wishlist
@@ -178,18 +184,18 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToWishlist(movieData.movieDetails.movieId);
-                    setwishButtonClicked(false);
+                    setwishButtonClicked(true);
                   }}
                 >
                   Add to Wishlist
                 </Button>
               )}
-              {dislikeButtonClicked === false ? (
+              {dislikeButtonClicked === true ? (
                 <Button
                   className={classes.ClickedDislikeButton}
                   onClick={() => {
                     deleteFromDislike(movieData.movieDetails.movieId);
-                    setDislikeButtonClicked(true);
+                    setDislikeButtonClicked(false);
                   }}
                 >
                   Undo Dislike
@@ -199,7 +205,7 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToDislike(movieData.movieDetails.movieId);
-                    setDislikeButtonClicked(false);
+                    setDislikeButtonClicked(true);
                   }}
                 >
                   Dislike
