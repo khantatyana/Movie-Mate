@@ -3,8 +3,6 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
-const serviceAccount = require("./movie-mate-43364-firebase-adminsdk-mhl98-ee193c1f30.json");
-const movielens = require("./data/movielens-api");
 const mongooseConnection = require("./config/mongoConnection");
 const configRoutes = require("./routes");
 const usersData = require("./data/users");
@@ -12,7 +10,11 @@ const usersData = require("./data/users");
 const PORT = process.env.PORT || 4200;
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+  }),
 });
 
 const app = express();
