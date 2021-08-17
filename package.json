@@ -34,6 +34,7 @@
     "express": "^4.17.1",
     "firebase-admin": "^9.11.0",
     "husky": "^4.3.8",
+    "if-env": "^1.0.4",
     "lodash": "^4.17.21",
     "mongoose": "^5.13.5",
     "movielens": "^0.3.0",
