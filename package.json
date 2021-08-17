@@ -4,14 +4,12 @@
   "description": "Movie Recommendation System - Machine Learning",
   "main": "app.js",
   "scripts": {
-    "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
-    "start:prod": "node app.js",
+    "start": "node app.js",
     "start:dev": "concurrently \"nodemon --ignore 'client/*'\" \"npm run client\"",
     "client": "cd client && npm run start",
     "install": "cd client && npm install",
     "build": "cd client && npm run build",
-    "seed": "node scripts/seeds.js",
-    "heroku-postbuild": "npm run build"
+    "deploy": "git push heroku main"
   },
   "repository": {
     "type": "git",
@@ -38,6 +36,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^5.13.5",
     "movielens": "^0.3.0",
+    "nocache": "^3.0.1",
     "nodemon": "^2.0.7",
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",

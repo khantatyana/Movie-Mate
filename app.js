@@ -6,14 +6,21 @@ const admin = require("firebase-admin");
 const mongooseConnection = require("./config/mongoConnection");
 const configRoutes = require("./routes");
 const usersData = require("./data/users");
+const nocache = require("nocache");
 
 const PORT = process.env.PORT || 4200;
+
+let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+if (process.env.NODE_ENV === "production") {
+  privateKey = privateKey.replace(/\\n/g, "\n");
+}
 
 admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+    privateKey,
   }),
 });
 
@@ -21,14 +28,25 @@ const app = express();
 
 const dbConnection = mongooseConnection();
 
+app.use(nocache());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("client/build"));
-}
-// app.use(express.static("client/build"));
-// app.use(express.static("client/public"));
+
+app.use(express.static("client/build"));
+
+app.get("*", (req, res, next) => {
+  if (!req.path.startsWith("/api")) {
+    res.sendfile(__dirname + "/client/build/index.html");
+  } else {
+    next();
+  }
+});
+
+app.get("/health", (req, res) => {
+  res.send("Hello World!");
+});
+
 app.use(async (req, res, next) => {
   try {
     const authToken = req.headers.authorization.replace("Bearer ", "");
