@@ -2,7 +2,9 @@ import axios from "axios";
 import firebase from "firebase/app";
 import { ExploreResponse } from "./models";
 
-const BASE_URL = "http://localhost:4200";
+const BASE_URL = window.location.href.includes("localhost")
+  ? "http://localhost:4200/api"
+  : "https://blooming-island-52136.herokuapp.com/api";
 
 class MoviesService {
   async explore(params: {
