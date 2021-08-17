@@ -33,6 +33,15 @@ router.get("/:id", async (req, res, next) => {
     const movielensMovie = await data.movielens.getMovieById(movieId);
     const ourMovie = await data.movies.getMovieById(movieId);
     movielensMovie.comments = ourMovie.comments;
+
+    movielensMovie.userLiked = req.user.likedMovies.some(
+      (m) => m.id === movieId
+    );
+    movielensMovie.userDisliked = req.user.dislikedMovies.some(
+      (m) => m.id === movieId
+    );
+    movielensMovie.userWish = req.user.wishMovies.some((m) => m.id === movieId);
+
     res.json(movielensMovie); // We return movielens movie with comments filled in from our database
   } catch (e) {
     res.status(500).json(e);
