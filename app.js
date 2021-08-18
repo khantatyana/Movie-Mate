@@ -58,9 +58,19 @@ app.use(async (req, res, next) => {
       firebaseUser.email
     );
   } catch (err) {
+    console.log(
+      `Failed Authenticating user for request: ${req.method} ${req.url}. Error: ${err}`
+    );
     return res.status(403).json({ error: "Forbidden: " + err });
   }
 
+  next();
+});
+
+app.use((req, res, next) => {
+  console.log(
+    `Incoming request: ${req.method} ${req.url} from user: ${req.user.name}`
+  );
   next();
 });
 

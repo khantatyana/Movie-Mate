@@ -5,6 +5,7 @@ import {
   Link,
   Redirect,
   Switch,
+  NavLink,
 } from "react-router-dom";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
 import firebase from "firebase/app";
@@ -19,6 +20,8 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { Movie } from "./Components/Movie";
+import { Box, Tab, Tabs } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYk4I-2c5E72cvb_wJwg3syt7xjrAssQg",
@@ -29,6 +32,23 @@ const firebaseConfig = {
   appId: "1:174076031402:web:a5609b82cf4905d55c3bd3",
   measurementId: "G-54RM0PJWCW",
 };
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  title: {
+    flexGrow: 1,
+  },
+  logo: {
+    maxWidth: 40,
+    marginRight: "10px",
+  },
+  activeTab: {
+    borderBottom: "solid thick #f9288a",
+    opacity: 1,
+  },
+}));
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
@@ -45,6 +65,7 @@ const uiConfig = {
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
+  const classes = useStyles();
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
@@ -57,17 +78,56 @@ function App() {
       <div className="App">
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6">
-              <Link to="/movies">Movie Mate</Link>
-            </Typography>
-            <Typography variant="h6">
-              <Link to="/profile">Profile</Link>
-            </Typography>
-            {authenticated ? (
-              <Button color="inherit" onClick={() => firebase.auth().signOut()}>
-                Sign-out
+            <Box display="flex" flexDirection="row">
+              {/* Logo */}
+              <Link to="/movies" edge="start">
+                <img
+                  src="/favicon-32x32.png"
+                  alt="Movie-Mate Logo"
+                  className={classes.logo}
+                ></img>
+              </Link>
+
+              <Typography variant="h6">
+                <Link to="/movies">Movie Mate</Link>
+              </Typography>
+            </Box>
+
+            <Box display="flex" flexDirection="row">
+              {/* Nav pages  */}
+              <Tabs>
+                <Tab
+                  label="Explore Movies"
+                  component={NavLink}
+                  exact
+                  to="/movies"
+                  activeClassName={classes.activeTab}
+                />
+                <Tab
+                  label="My Recommendations"
+                  component={NavLink}
+                  exact
+                  to="/recommendations"
+                  activeClassName={classes.activeTab}
+                />
+              </Tabs>
+            </Box>
+
+            <Box display="flex" flexDirection="row">
+              {/* Profile links */}
+              <Button component={NavLink} exact to="/profile" color="inherit">
+                My Profile
               </Button>
-            ) : null}
+
+              {authenticated ? (
+                <Button
+                  color="inherit"
+                  onClick={() => firebase.auth().signOut()}
+                >
+                  Sign-out
+                </Button>
+              ) : null}
+            </Box>
           </Toolbar>
         </AppBar>
         {authenticated ? (
