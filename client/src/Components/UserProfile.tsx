@@ -30,12 +30,6 @@ const useStyles = makeStyles((theme) => ({
     // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
     transform: "translateZ(0)",
   },
-  title: {
-    color: "black",
-  },
-  titleBar: {
-    background: "white",
-  },
   large: {
     width: theme.spacing(24),
     height: theme.spacing(24),
@@ -46,7 +40,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    paddingBottom: 25,
+    margin: 30,
+    paddingTop: 20,
   },
   name: {
     fontSize: 24,
@@ -113,13 +108,9 @@ export const UserProfile = () => {
           ) : (
             <p className="no-image-available">No image available</p>
           )}
-
           <ImageListItemBar
-            title={`${result.title} (${result.year})`}
-            classes={{
-              root: classes.titleBar,
-              title: classes.title,
-            }}
+            title={result.title}
+            subtitle={<span>{result.year}</span>}
           />
         </Link>
       </ImageListItem>
@@ -162,41 +153,40 @@ export const UserProfile = () => {
             )}
           </div>
           <div className="profile-container">
-            <img
-              alt="Profile"
-              src={currentUser.photoURL}
-              className="profile-picture"
-            />
             <Card className={classes.card}>
+              <Avatar
+                alt="Profile"
+                src={currentUser.photoURL}
+                className={classes.large}
+              />
               <CardContent>
                 <Typography variant="h5" component="h2">
                   {currentUser.displayName}
                 </Typography>
                 <Typography className={classes.pos} color="textSecondary">
-                  <p>Email: {currentUser.email}</p>
+                  <p>{currentUser.email}</p>
                 </Typography>
-                <Typography component="p">Average Movie Goer :p</Typography>
               </CardContent>
               <CardActions>
-                <EditFormModal currentUser={currentUser} />
                 {/* <Button size="small">Learn More</Button> */}
               </CardActions>
             </Card>
+            <EditFormModal currentUser={currentUser} />
           </div>
           <h2> My Favorites </h2>
           <div className={classes.root}>
-            <ImageList className={classes.imageList} rowHeight={400} cols={3.5}>
+            <ImageList className={classes.imageList} rowHeight={350} cols={5.5}>
               {favorites}
             </ImageList>
           </div>
-          <p>{` << Scroll >> `}</p>
+          <p>{` << --- >> `}</p>
           <h2> My Wish List </h2>
           <div className={classes.root}>
-            <ImageList className={classes.imageList} rowHeight={400} cols={3.5}>
+            <ImageList className={classes.imageList} rowHeight={350} cols={5.5}>
               {wishList}
             </ImageList>
           </div>
-          <p>{` << Scroll >> `}</p>
+          <p>{` << --- >> `}</p>
         </div>
       );
     }

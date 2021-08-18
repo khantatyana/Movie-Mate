@@ -47,11 +47,13 @@
 }
 
 .profile-container {
-}
-.profile-picture {
-  padding: 0.5em;
-  float: left;
-  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  background: #eee;
+  background-image: url("https://images.pond5.com/cartoon-clouds-background-seamless-looping-090171541_prevstill.jpeg");
+  background-repeat: no-repeat;
+  background-position: ;
+  background-size: cover;
 }
 
 @keyframes App-logo-spin {

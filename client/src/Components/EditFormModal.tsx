@@ -36,6 +36,9 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
   },
+  button: {
+    margin: 30,
+  },
 }));
 
 const EditFormModal = (props) => {
@@ -156,7 +159,12 @@ const EditFormModal = (props) => {
 
   return (
     <div>
-      <Button variant="contained" color="primary" onClick={handleOpen}>
+      <Button
+        className={classes.button}
+        variant="contained"
+        color="primary"
+        onClick={handleOpen}
+      >
         Edit Profile
       </Button>
       <Modal
