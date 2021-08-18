@@ -17,6 +17,8 @@ function getModalStyle() {
   };
 }
 
+const reload = () => window.location.reload();
+
 const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiTextField-root": {
@@ -101,6 +103,7 @@ const EditFormModal = (props) => {
       });
 
       handleClose();
+      reload();
     } catch (error) {
       setUpdateError(error.messages);
       console.log(error.messages);
