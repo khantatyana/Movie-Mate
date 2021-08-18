@@ -52,8 +52,10 @@ export const UserProfile = (props) => {
 
   const classes = useStyles();
   const [currentUser] = useState(firebase.auth().currentUser);
+  const [displayName, setDisplayName] = useState(undefined);
+  const [email, setEmail] = useState(undefined);
   const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(undefined);
   const [error, setError] = useState(undefined);
   let wishList = null;
   let favorites = null;
@@ -61,6 +63,8 @@ export const UserProfile = (props) => {
   const getToken = async () => {
     try {
       const user = firebase.auth().currentUser;
+      setDisplayName(user.displayName);
+      setEmail(user.email);
       return await user.getIdToken();
     } catch (e) {
       return null;
@@ -71,48 +75,23 @@ export const UserProfile = (props) => {
     (async () => {
       try {
         const token = await getToken();
-        console.log(token);
         setLoading(true);
-        let url = `http://localhost:4200/users/${currentUser.uid}`;
+        let url = `http://localhost:4200/api/users/${currentUser.uid}`;
         const response = await axios.get(url, {
           headers: {
             "Content-Type": "application/json",
             authorization: `Bearer ${token}`,
           },
         });
-        console.log(response.data);
         setUserData(response.data);
         setLoading(false);
       } catch (e) {
         setError(e.messages);
-        console.log(error);
       }
     })();
   }, [currentUser, error]);
 
-  const buildWishListItem = (result) => {
-    return (
-      <ImageListItem key={result.movieId}>
-        <Link to={"movies/" + result.movieId}>
-          {result.img ? (
-            <img src={result.img} alt={result.title} />
-          ) : (
-            <p className="no-image-available">No image available</p>
-          )}
-
-          <ImageListItemBar
-            title={`${result.title} (${result.year})`}
-            classes={{
-              root: classes.titleBar,
-              title: classes.title,
-            }}
-          />
-        </Link>
-      </ImageListItem>
-    );
-  };
-
-  const buildFavListItem = (result) => {
+  const buildListItem = (result) => {
     return (
       <ImageListItem key={result.movieId}>
         <Link to={"movies/" + result.movieId}>
@@ -136,13 +115,13 @@ export const UserProfile = (props) => {
 
   if (userData && userData.wishMovies.length > 1) {
     wishList = userData.wishList.map((item) => {
-      return buildWishListItem(item);
+      return buildListItem(item);
     });
   }
 
   if (userData && userData.likedMovies.length > 1) {
     favorites = userData.favorites.map((item) => {
-      return buildFavListItem(item);
+      return buildListItem(item);
     });
   }
 
@@ -167,13 +146,10 @@ export const UserProfile = (props) => {
           className={classes.large}
         />
         <div className={classes.border}>
-          <p>Name: {currentUser.displayName}</p>
-          <p>Email: {currentUser.email}</p>
+          <p>Name: {displayName}</p>
+          <p>Email: {email}</p>
         </div>
-        <EditFormModal
-          name={currentUser.displayName}
-          email={currentUser.email}
-        />
+        <EditFormModal currentUser={currentUser} />
       </Grid>
       <h2> My Favorites </h2>
       <div className={classes.root}>
