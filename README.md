@@ -1,7 +1,7 @@
 # Movie-Mate Recommendation Site
 CS-554 Summer 2021 Project
 
-[Deployed Here](https://blooming-island-52136.herokuapp.com)
+[Deployed Here](https://movie-mate-cs-554.herokuapp.com/)
 
 Local Development Instructions
 
