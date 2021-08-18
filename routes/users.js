@@ -138,13 +138,13 @@ router.post("/:userId/:movieList/:movieId", async (req, res, next) => {
 
   // Remove movie from other lists
   if (movieList !== "likedMovies") {
-    await data.users.removeMovieFromUserList(userId, movieId, movieList);
+    await data.users.removeMovieFromUserList(userId, movieId, "likedMovies");
   }
   if (movieList !== "dislikedMovies") {
-    await data.users.removeMovieFromUserList(userId, movieId, movieList);
+    await data.users.removeMovieFromUserList(userId, movieId, "dislikedMovies");
   }
   if (movieList !== "wishMovies") {
-    await data.users.removeMovieFromUserList(userId, movieId, movieList);
+    await data.users.removeMovieFromUserList(userId, movieId, "wishMovies");
   }
 
   res.json(result);
