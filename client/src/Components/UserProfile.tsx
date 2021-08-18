@@ -1,9 +1,10 @@
 import React from "react";
-import axios from "axios";
 import { useEffect } from "react";
-import firebase from "firebase/app";
 import { Link } from "react-router-dom";
+import { moviesService } from "../movies.service";
+import firebase from "firebase/app";
 import EditFormModal from "./EditFormModal";
+import RemoveIcon from "@material-ui/icons/Remove";
 import {
   makeStyles,
   ImageListItem,
@@ -15,6 +16,7 @@ import {
   CardContent,
   Typography,
   LinearProgress,
+  IconButton,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -41,13 +43,16 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     alignItems: "center",
     margin: 30,
-    paddingTop: 20,
+    paddingTop: 30,
   },
   name: {
     fontSize: 24,
   },
   pos: {
     marginBottom: 12,
+  },
+  title: {
+    color: "white",
   },
 }));
 
@@ -60,33 +65,12 @@ export const UserProfile = () => {
   let wishList = null;
   let favorites = null;
 
-  async function getToken() {
-    try {
-      const user = firebase.auth().currentUser;
-      return await user.getIdToken();
-    } catch (e) {
-      return null;
-    }
-  }
-
   useEffect(() => {
     async function fetchData() {
       try {
-        const BASE_URL = window.location.href.includes("localhost")
-          ? "http://localhost:4200/api"
-          : "https://movie-mate-cs-554.herokuapp.com/api";
-        const token = await getToken();
-        const response = await axios.get(
-          `${BASE_URL}/users/${currentUser.uid}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(response.data);
-        setUserData(response.data);
+        const response = await moviesService.getUserById(currentUser.uid);
+        console.log(response);
+        setUserData(response);
         setLoading(false);
       } catch (e) {
         setError(e.messages);
@@ -111,6 +95,11 @@ export const UserProfile = () => {
           <ImageListItemBar
             title={result.title}
             subtitle={<span>{result.year}</span>}
+            actionIcon={
+              <IconButton>
+                <RemoveIcon className={classes.title} />
+              </IconButton>
+            }
           />
         </Link>
       </ImageListItem>
@@ -175,14 +164,14 @@ export const UserProfile = () => {
           </div>
           <h2> My Favorites </h2>
           <div className={classes.root}>
-            <ImageList className={classes.imageList} rowHeight={350} cols={5.5}>
+            <ImageList className={classes.imageList} rowHeight={350} cols={4.5}>
               {favorites}
             </ImageList>
           </div>
           <p>{` << --- >> `}</p>
           <h2> My Wish List </h2>
           <div className={classes.root}>
-            <ImageList className={classes.imageList} rowHeight={350} cols={5.5}>
+            <ImageList className={classes.imageList} rowHeight={350} cols={4.5}>
               {wishList}
             </ImageList>
           </div>

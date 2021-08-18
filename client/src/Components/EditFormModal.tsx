@@ -1,10 +1,9 @@
 import React from "react";
+import { moviesService } from "../movies.service";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 import { TextField } from "@material-ui/core";
-import axios from "axios";
-import firebase from "firebase/app";
 
 function getModalStyle() {
   const top = 50;
@@ -53,16 +52,6 @@ const EditFormModal = (props) => {
   );
   const [updateError, setUpdateError] = React.useState(undefined);
 
-  const getToken = async () => {
-    try {
-      console.log(currentUser);
-      const user = currentUser;
-      return await user.getIdToken();
-    } catch (e) {
-      return null;
-    }
-  };
-
   const handleOpen = () => {
     setOpen(true);
   };
@@ -83,33 +72,19 @@ const EditFormModal = (props) => {
     setNewPhotoURL(event.target.value);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     try {
-      const token = await getToken();
-      let url = `http://localhost:4200/api/users/${currentUser.uid}`;
-      let data = {
-        name: newName,
-        email: newEmail,
-      };
-      await axios.put(url, data, {
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-      });
-
-      const user = firebase.auth().currentUser;
-      await user.updateEmail(newEmail);
-      await user.updateProfile({
-        displayName: newName,
-        photoURL: newPhotoURL,
-      });
-
+      const response = await moviesService.updateUser(
+        currentUser.uid,
+        newName,
+        newEmail,
+        newPhotoURL
+      );
+      console.log(response);
       handleClose();
       reload();
     } catch (error) {
       setUpdateError(error.messages);
-      console.log(error.messages);
     }
   };
 
