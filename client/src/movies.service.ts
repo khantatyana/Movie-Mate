@@ -55,6 +55,45 @@ class MoviesService {
     }
   }
 
+  async getUserById(id: String) {
+    const token = await this.getToken();
+    const response = await axios.get(`${BASE_URL}/users/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  }
+
+  async updateUser(
+    id: string,
+    newName: string,
+    newEmail: string,
+    newPhotoURL: string
+  ) {
+    const token = await this.getToken();
+    let url = `${BASE_URL}/users/${id}`;
+    let data = {
+      name: newName,
+      email: newEmail,
+    };
+    await axios.put(url, data, {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    const user = firebase.auth().currentUser;
+    await user.updateEmail(newEmail);
+    await user.updateProfile({
+      displayName: newName,
+      photoURL: newPhotoURL,
+    });
+  }
+
   async getMovieByID(id: number) {
     const token = await this.getToken();
     const response = await axios.get(`${BASE_URL}/movies/${id}`, {

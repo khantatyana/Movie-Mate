@@ -1,194 +1,183 @@
-import { useEffect, useState } from "react";
-import { LinearProgress } from "@material-ui/core";
-import axios from "axios";
-import firebase from "firebase/app";
-import { makeStyles } from "@material-ui/core/styles";
-import ImageList from "@material-ui/core/ImageList";
-import ImageListItem from "@material-ui/core/ImageListItem";
-import ImageListItemBar from "@material-ui/core/ImageListItemBar";
-import Avatar from "@material-ui/core/Avatar";
-import Grid from "@material-ui/core/Grid";
+import React from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import Button from "@material-ui/core/Button";
+import { moviesService } from "../movies.service";
+import firebase from "firebase/app";
 import EditFormModal from "./EditFormModal";
-// import IconButton from "@material-ui/core/IconButton";
+import RemoveIcon from "@material-ui/icons/Remove";
+import {
+  makeStyles,
+  ImageListItem,
+  ImageList,
+  ImageListItemBar,
+  Avatar,
+  Card,
+  CardActions,
+  CardContent,
+  Typography,
+  LinearProgress,
+  IconButton,
+} from "@material-ui/core";
 
-export const UserProfile = (props) => {
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      display: "flex",
-      flexWrap: "wrap",
-      justifyContent: "space-around",
-      overflow: "hidden",
-      backgroundColor: theme.palette.background.paper,
-    },
-    imageList: {
-      flexWrap: "nowrap",
-      // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-      transform: "translateZ(0)",
-    },
-    title: {
-      color: "black",
-    },
-    titleBar: {
-      background: "white",
-    },
-    large: {
-      width: theme.spacing(24),
-      height: theme.spacing(24),
-      margin: theme.spacing(4, 3),
-    },
-    header: {
-      margin: theme.spacing(4, 3),
-    },
-    border: {
-      border: 2,
-      borderColor: "blue",
-      borderStyle: "solid",
-      borderRadius: 16,
-      padding: theme.spacing(2, 2),
-    },
-  }));
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    overflow: "hidden",
+    backgroundColor: theme.palette.background.paper,
+  },
+  imageList: {
+    flexWrap: "nowrap",
+    // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
+    transform: "translateZ(0)",
+  },
+  large: {
+    width: theme.spacing(24),
+    height: theme.spacing(24),
+  },
+  card: {
+    maxWidth: 350,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    margin: 30,
+    paddingTop: 30,
+  },
+  name: {
+    fontSize: 24,
+  },
+  pos: {
+    marginBottom: 12,
+  },
+  title: {
+    color: "white",
+  },
+}));
 
+export const UserProfile = () => {
   const classes = useStyles();
-  const [currentUser] = useState(firebase.auth().currentUser);
-  const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [error, setError] = useState(undefined);
+  const [userData, setUserData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(undefined);
+  const [currentUser] = React.useState(firebase.auth().currentUser);
   let wishList = null;
   let favorites = null;
 
-  const getToken = async () => {
-    try {
-      const user = firebase.auth().currentUser;
-      return await user.getIdToken();
-    } catch (e) {
-      return null;
-    }
-  };
-
   useEffect(() => {
-    (async () => {
+    async function fetchData() {
       try {
-        const token = await getToken();
-        console.log(token);
-        setLoading(true);
-        let url = `http://localhost:4200/users/${currentUser.uid}`;
-        const response = await axios.get(url, {
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response.data);
-        setUserData(response.data);
+        const response = await moviesService.getUserById(currentUser.uid);
+        console.log(response);
+        setUserData(response);
         setLoading(false);
       } catch (e) {
         setError(e.messages);
-        console.log(error);
       }
-    })();
-  }, [currentUser, error]);
+    }
+    fetchData();
+  }, [currentUser]);
 
-  const buildWishListItem = (result) => {
+  const buildListItem = (result) => {
+    console.log(result);
     return (
-      <ImageListItem key={result.movieId}>
-        <Link to={"movies/" + result.movieId}>
-          {result.img ? (
-            <img src={result.img} alt={result.title} />
+      <ImageListItem key={result._id}>
+        <Link to={"movies/" + result._id}>
+          {result.posterUrl ? (
+            <img
+              src={`https://image.tmdb.org/t/p/w500/${result.posterUrl}`}
+              alt={result.title}
+            />
           ) : (
             <p className="no-image-available">No image available</p>
           )}
-
           <ImageListItemBar
-            title={`${result.title} (${result.year})`}
-            classes={{
-              root: classes.titleBar,
-              title: classes.title,
-            }}
+            title={result.title}
+            subtitle={<span>{result.year}</span>}
+            actionIcon={
+              <IconButton>
+                <RemoveIcon className={classes.title} />
+              </IconButton>
+            }
           />
         </Link>
       </ImageListItem>
     );
   };
 
-  const buildFavListItem = (result) => {
-    return (
-      <ImageListItem key={result.movieId}>
-        <Link to={"movies/" + result.movieId}>
-          {result.img ? (
-            <img src={result.img} alt={result.title} />
-          ) : (
-            <p className="no-image-available">No image available</p>
-          )}
-
-          <ImageListItemBar
-            title={`${result.title} (${result.year})`}
-            classes={{
-              root: classes.titleBar,
-              title: classes.title,
-            }}
-          />
-        </Link>
-      </ImageListItem>
-    );
-  };
-
-  if (userData && userData.wishMovies.length > 1) {
-    wishList = userData.wishList.map((item) => {
-      return buildWishListItem(item);
-    });
+  if (userData) {
+    wishList =
+      userData &&
+      userData.wishMovies.map((item) => {
+        return buildListItem(item);
+      });
   }
 
-  if (userData && userData.likedMovies.length > 1) {
-    favorites = userData.favorites.map((item) => {
-      return buildFavListItem(item);
-    });
+  if (userData) {
+    favorites =
+      userData &&
+      userData.likedMovies.map((item) => {
+        return buildListItem(item);
+      });
   }
 
-  return (
-    <div>
-      <div>
-        {loading ? (
-          <LinearProgress color="secondary" />
-        ) : (
-          <div className="progress-placeholder"></div>
-        )}
-      </div>
-      <Grid
-        container
-        direction="row"
-        justifyContent="space-around"
-        alignItems="center"
-      >
-        <Avatar
-          alt="Profile"
-          src={currentUser.photoURL}
-          className={classes.large}
-        />
-        <div className={classes.border}>
-          <p>Name: {currentUser.displayName}</p>
-          <p>Email: {currentUser.email}</p>
+  if (loading) {
+    return <div>Loading...</div>;
+  } else {
+    if (error) {
+      return (
+        <div>
+          <h1>{error}</h1>
         </div>
-        <EditFormModal
-          name={currentUser.displayName}
-          email={currentUser.email}
-        />
-      </Grid>
-      <h2> My Favorites </h2>
-      <div className={classes.root}>
-        <ImageList className={classes.imageList} rowHeight={350} cols={4}>
-          {favorites}
-        </ImageList>
-      </div>
-      <p>{` << Scroll >> `}</p>
-      <h2> My Wish List </h2>
-      <div className={classes.root}>
-        <ImageList className={classes.imageList} rowHeight={350} cols={4}>
-          {wishList}
-        </ImageList>
-      </div>
-      <p>{` << Scroll >> `}</p>
-    </div>
-  );
+      );
+    } else {
+      return (
+        <div>
+          <div>
+            {loading ? (
+              <LinearProgress color="secondary" />
+            ) : (
+              <div className="progress-placeholder"></div>
+            )}
+          </div>
+          <div className="profile-container">
+            <Card className={classes.card}>
+              <Avatar
+                alt="Profile"
+                src={currentUser.photoURL}
+                className={classes.large}
+              />
+              <CardContent>
+                <Typography variant="h5" component="h2">
+                  {currentUser.displayName}
+                </Typography>
+                <Typography className={classes.pos} color="textSecondary">
+                  <p>{currentUser.email}</p>
+                </Typography>
+              </CardContent>
+              <CardActions>
+                {/* <Button size="small">Learn More</Button> */}
+              </CardActions>
+            </Card>
+            <EditFormModal currentUser={currentUser} />
+          </div>
+          <h2> My Favorites </h2>
+          <div className={classes.root}>
+            <ImageList className={classes.imageList} rowHeight={350} cols={4.5}>
+              {favorites}
+            </ImageList>
+          </div>
+          <p>{` << --- >> `}</p>
+          <h2> My Wish List </h2>
+          <div className={classes.root}>
+            <ImageList className={classes.imageList} rowHeight={350} cols={4.5}>
+              {wishList}
+            </ImageList>
+          </div>
+          <p>{` << --- >> `}</p>
+        </div>
+      );
+    }
+  }
 };

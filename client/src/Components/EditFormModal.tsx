@@ -1,4 +1,5 @@
 import React from "react";
+import { moviesService } from "../movies.service";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
@@ -14,6 +15,8 @@ function getModalStyle() {
     transform: `translate(-${top}%, -${left}%)`,
   };
 }
+
+const reload = () => window.location.reload();
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,14 +35,22 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
   },
+  button: {
+    margin: 30,
+  },
 }));
 
 const EditFormModal = (props) => {
   const classes = useStyles();
+  const [currentUser] = React.useState(props.currentUser);
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
-  const [newName, setNewName] = React.useState(props.name);
-  const [newEmail, setNewEmail] = React.useState(props.email);
+  const [newName, setNewName] = React.useState(props.currentUser.displayName);
+  const [newEmail, setNewEmail] = React.useState(props.currentUser.email);
+  const [newPhotoURL, setNewPhotoURL] = React.useState(
+    props.currentUser.photoURL
+  );
+  const [updateError, setUpdateError] = React.useState(undefined);
 
   const handleOpen = () => {
     setOpen(true);
@@ -57,10 +68,30 @@ const EditFormModal = (props) => {
     setNewEmail(event.target.value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // do update stuff
+  const handleChangedPhotoURL = (event) => {
+    setNewPhotoURL(event.target.value);
   };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await moviesService.updateUser(
+        currentUser.uid,
+        newName,
+        newEmail,
+        newPhotoURL
+      );
+      console.log(response);
+      handleClose();
+      reload();
+    } catch (error) {
+      setUpdateError(error.messages);
+    }
+  };
+
+  let errorDiv;
+  if (updateError) {
+    errorDiv = <div>{updateError.messages}</div>;
+  }
 
   const body = (
     <div style={modalStyle} className={classes.paper}>
@@ -84,16 +115,31 @@ const EditFormModal = (props) => {
             shrink: true,
           }}
         />
-        <Button variant="contained" color="primary" onClick={handleClose}>
+        <TextField
+          label="Photo URL"
+          variant="outlined"
+          value={newPhotoURL}
+          onChange={handleChangedPhotoURL}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
           Submit
         </Button>
       </form>
+      {errorDiv}
     </div>
   );
 
   return (
     <div>
-      <Button variant="contained" color="primary" onClick={handleOpen}>
+      <Button
+        className={classes.button}
+        variant="contained"
+        color="primary"
+        onClick={handleOpen}
+      >
         Edit Profile
       </Button>
       <Modal
