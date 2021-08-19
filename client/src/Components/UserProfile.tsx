@@ -101,14 +101,14 @@ export const UserProfile = (props) => {
     return (
       <ImageListItem key={result._id}>
         <Link to={"movies/" + result._id}>
-          {result.posterUrl ? (
-            <img
-              src={`https://image.tmdb.org/t/p/w500/${result.posterUrl}`}
-              alt={result.title}
-            />
-          ) : (
-            <p className="no-image-available">No image available</p>
-          )}
+          <img
+            src={
+              result.posterUrl
+                ? "https://image.tmdb.org/t/p/w500/" + result.posterUrl
+                : "/no-poster.jpg"
+            }
+            alt={result.title}
+          />
           <ImageListItemBar
             title={result.title}
             subtitle={<span>{result.year}</span>}

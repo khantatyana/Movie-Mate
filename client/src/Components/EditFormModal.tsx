@@ -16,8 +16,6 @@ function getModalStyle() {
   };
 }
 
-// const reload = () => window.location.reload();
-
 const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiTextField-root": {
