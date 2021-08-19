@@ -97,7 +97,10 @@ async function removeMovieFromUserList(userId, movieId, category) {
   const movie = await movies.getMovieById(movieId);
   if (!movie) throw `Couldn't get movie with the given ID ${movieId}`;
 
-  _.remove(user[category], (m) => m._id === movieId);
+  const movieToDelete = user[category].id(movieId);
+  if (movieToDelete) {
+    movieToDelete.remove();
+  }
 
   return await saveSafely(user);
 }

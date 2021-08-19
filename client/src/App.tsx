@@ -20,8 +20,20 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { Movie } from "./Components/Movie";
-import { Box, Tab, Tabs } from "@material-ui/core";
+import {
+  Box,
+  Icon,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tab,
+  Tabs,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { AccountCircle } from "@material-ui/icons";
+import Avatar from "@material-ui/core/Avatar";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYk4I-2c5E72cvb_wJwg3syt7xjrAssQg",
@@ -65,10 +77,27 @@ const uiConfig = {
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [loggedUser, setLoggedUser] = useState(null);
   const classes = useStyles();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const signout = () => {
+    setAnchorEl(null);
+    firebase.auth().signOut();
+  };
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
+      setLoggedUser(user);
       setAuthenticated(!!user);
     });
   }, []);
@@ -115,17 +144,50 @@ function App() {
 
             <Box display="flex" flexDirection="row">
               {/* Profile links */}
-              <Button component={NavLink} exact to="/profile" color="inherit">
-                My Profile
-              </Button>
-
               {authenticated ? (
-                <Button
-                  color="inherit"
-                  onClick={() => firebase.auth().signOut()}
-                >
-                  Sign-out
-                </Button>
+                <div>
+                  <IconButton
+                    aria-label="account of current user"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    onClick={handleMenu}
+                    color="inherit"
+                  >
+                    {console.log(loggedUser)}
+                    {loggedUser && loggedUser.photoURL ? (
+                      <Avatar alt={loggedUser.name} src={loggedUser.photoURL} />
+                    ) : (
+                      <AccountCircle />
+                    )}
+                  </IconButton>
+                  <Menu
+                    id="menu-appbar"
+                    anchorEl={anchorEl}
+                    getContentAnchorEl={null}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "center",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "center",
+                    }}
+                    open={open}
+                    onClose={handleClose}
+                  >
+                    <MenuItem
+                      onClick={handleClose}
+                      component={NavLink}
+                      exact
+                      to="/profile"
+                    >
+                      <AccountCircleIcon /> &nbsp; My Profile
+                    </MenuItem>
+                    <MenuItem onClick={signout}>
+                      <ExitToAppIcon /> &nbsp; Sign-out
+                    </MenuItem>
+                  </Menu>
+                </div>
               ) : null}
             </Box>
           </Toolbar>

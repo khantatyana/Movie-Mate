@@ -130,12 +130,6 @@ router.post("/:userId/:movieList/:movieId", async (req, res, next) => {
     return;
   }
 
-  const result = await data.users.addMovieToUserList(
-    userId,
-    movieId,
-    movieList
-  );
-
   // Remove movie from other lists
   if (movieList !== "likedMovies") {
     await data.users.removeMovieFromUserList(userId, movieId, "likedMovies");
@@ -146,6 +140,12 @@ router.post("/:userId/:movieList/:movieId", async (req, res, next) => {
   if (movieList !== "wishMovies") {
     await data.users.removeMovieFromUserList(userId, movieId, "wishMovies");
   }
+
+  const result = await data.users.addMovieToUserList(
+    userId,
+    movieId,
+    movieList
+  );
 
   res.json(result);
 });
