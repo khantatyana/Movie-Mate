@@ -54,9 +54,9 @@ const EditFormModal = (props) => {
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleClose = (response) => {
     setOpen(false);
-    props.history();
+    props.updateUser(response);
   };
 
   const handleChangedName = (event) => {
@@ -94,7 +94,8 @@ const EditFormModal = (props) => {
         newEmail,
         newPhotoURL
       );
-      handleClose();
+      const response = await moviesService.getUserById(currentUser.uid);
+      handleClose(response);
     } catch (error) {
       setUpdateError(error.messages);
     }
