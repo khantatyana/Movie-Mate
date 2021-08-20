@@ -1,13 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const data = require("../data");
+const movies = require("../data/movies");
 const routesUtils = require("./routes-utils");
 const recommender = require("movie-recommender")
 
 router.get("/", async (req, res, next) => {
-    // fetches list of movies from MongoDB
+    if (!routesUtils.authenticateUser(req, res)) return;
+    // fetches list of user's liked movies
+    let userId = req.user.userId
+    let likedMoves = req.user.liked
+
+    if(!likedMoves) return;
+
+    likedMoves.map((v) => {
+        likedMoves.title
+    })
 
     // generates list of recommendations (with movie titles)
+    let recs = await recommender(likedMoves, 20)
 
     // returns list in following format
     /*
@@ -52,8 +62,10 @@ router.get("/", async (req, res, next) => {
 ]
 
     */
-
-    // passes data to recs.service.ts
-
-    // which then displays data in Recommendations.tsx
+    movieInfo = []
+    for(let rec of recs) {
+        let m = movies.getMovieById(rec.id)
+        movieInfo.push(m)
+    }
+    res.json(movieInfo)
 });
