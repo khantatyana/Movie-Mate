@@ -16,8 +16,6 @@ function getModalStyle() {
   };
 }
 
-const reload = () => window.location.reload();
-
 const useStyles = makeStyles((theme) => ({
   root: {
     "& .MuiTextField-root": {
@@ -58,31 +56,45 @@ const EditFormModal = (props) => {
 
   const handleClose = () => {
     setOpen(false);
+    props.history();
   };
 
   const handleChangedName = (event) => {
     setNewName(event.target.value);
+    if (event.target.value === "") {
+      setUpdateError("Name must be included");
+    } else {
+      setUpdateError(undefined);
+    }
   };
 
   const handleChangedEmail = (event) => {
     setNewEmail(event.target.value);
+    if (event.target.value === "") {
+      setUpdateError("Email must be included");
+    } else {
+      setUpdateError(undefined);
+    }
   };
 
   const handleChangedPhotoURL = (event) => {
     setNewPhotoURL(event.target.value);
+    if (event.target.value === "") {
+      setUpdateError("url must be included");
+    } else {
+      setUpdateError(undefined);
+    }
   };
 
   const handleSubmit = async () => {
     try {
-      const response = await moviesService.updateUser(
+      await moviesService.updateUser(
         currentUser.uid,
         newName,
         newEmail,
         newPhotoURL
       );
-      console.log(response);
       handleClose();
-      reload();
     } catch (error) {
       setUpdateError(error.messages);
     }
@@ -90,7 +102,8 @@ const EditFormModal = (props) => {
 
   let errorDiv;
   if (updateError) {
-    errorDiv = <div>{updateError.messages}</div>;
+    console.log(updateError);
+    errorDiv = <div className="error">{updateError}</div>;
   }
 
   const body = (
@@ -124,11 +137,11 @@ const EditFormModal = (props) => {
             shrink: true,
           }}
         />
+        {errorDiv}
         <Button variant="contained" color="primary" onClick={handleSubmit}>
           Submit
         </Button>
       </form>
-      {errorDiv}
     </div>
   );
 

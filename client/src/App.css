@@ -55,6 +55,11 @@
   background-size: cover;
 }
 
+.error {
+  color: red;
+  margin: 5px 0 15px 0;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
