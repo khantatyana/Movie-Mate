@@ -69,6 +69,7 @@ export const Movie = (props) => {
   const [likeButtonClicked, setLikeButtonClicked] = useState(false);
   const [dislikeButtonClicked, setDislikeButtonClicked] = useState(false);
   const [wishButtonClicked, setwishButtonClicked] = useState(false);
+  const [commentAdded, setCommentAdded] = useState(false);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
   const classes = useStyles();
@@ -78,14 +79,26 @@ export const Movie = (props) => {
     setComment(event.target.value);
   };
 
-  /*useEffect(() => {
-    console.log("button changed");
+  useEffect(() => {
     btnClass =
       likeButtonClicked === false
         ? classes.NonClickedButton
         : classes.ClickedLikeButton;
-    console.log(btnClass);
-  }, [likeButtonClicked]);*/
+  }, [likeButtonClicked]);
+
+  useEffect(() => {
+    btnClass =
+      dislikeButtonClicked === false
+        ? classes.NonClickedButton
+        : classes.ClickedDislikeButton;
+  }, [dislikeButtonClicked]);
+
+  useEffect(() => {
+    btnClass =
+      wishButtonClicked === false
+        ? classes.NonClickedButton
+        : classes.ClickedWishButton;
+  }, [wishButtonClicked]);
 
   useEffect(() => {
     console.log("useEffect fired");
@@ -98,18 +111,20 @@ export const Movie = (props) => {
         console.log(response);
         setMovieData(response);
         setLoading(false);
+        setCommentAdded(false);
+        setLikeButtonClicked(response.userLiked);
+        setDislikeButtonClicked(response.userDisliked);
+        setwishButtonClicked(response.userWish);
+        console.log(likeButtonClicked);
+        console.log(dislikeButtonClicked);
+        console.log(wishButtonClicked);
         console.log(movieData);
       } catch (e) {
         console.log(e);
       }
     }
     fetchData();
-  }, [
-    props.match.params.movieId,
-    likeButtonClicked,
-    dislikeButtonClicked,
-    wishButtonClicked,
-  ]);
+  }, [props.match.params.movieId, commentAdded]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -135,12 +150,12 @@ export const Movie = (props) => {
             </ImageListItem>
             <br></br>
             <ButtonGroup>
-              {likeButtonClicked === false ? (
+              {likeButtonClicked === true ? (
                 <Button
                   className={classes.ClickedLikeButton}
                   onClick={() => {
                     deleteFromLike(movieData.movieDetails.movieId);
-                    setLikeButtonClicked(true);
+                    setLikeButtonClicked(false);
                   }}
                 >
                   Undo Like
@@ -150,18 +165,18 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToLike(movieData.movieDetails.movieId);
-                    setLikeButtonClicked(false);
+                    setLikeButtonClicked(true);
                   }}
                 >
                   Like
                 </Button>
               )}
-              {wishButtonClicked === false ? (
+              {wishButtonClicked === true ? (
                 <Button
                   className={classes.ClickedWishButton}
                   onClick={() => {
                     deleteFromWish(movieData.movieDetails.movieId);
-                    setwishButtonClicked(true);
+                    setwishButtonClicked(false);
                   }}
                 >
                   Remove from Wishlist
@@ -171,18 +186,18 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToWishlist(movieData.movieDetails.movieId);
-                    setwishButtonClicked(false);
+                    setwishButtonClicked(true);
                   }}
                 >
                   Add to Wishlist
                 </Button>
               )}
-              {dislikeButtonClicked === false ? (
+              {dislikeButtonClicked === true ? (
                 <Button
                   className={classes.ClickedDislikeButton}
                   onClick={() => {
                     deleteFromDislike(movieData.movieDetails.movieId);
-                    setDislikeButtonClicked(true);
+                    setDislikeButtonClicked(false);
                   }}
                 >
                   Undo Dislike
@@ -192,7 +207,7 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToDislike(movieData.movieDetails.movieId);
-                    setDislikeButtonClicked(false);
+                    setDislikeButtonClicked(true);
                   }}
                 >
                   Dislike
@@ -221,8 +236,11 @@ export const Movie = (props) => {
                 {movieData.movieDetails.movie.genres && (
                   <ButtonGroup>
                     {movieData.movieDetails.movie.genres &&
-                      movieData.movieDetails.movie.genres.map(function (genre) {
-                        return <Button>{genre}</Button>;
+                      movieData.movieDetails.movie.genres.map(function (
+                        genre,
+                        index
+                      ) {
+                        return <Button key={index}>{genre}</Button>;
                       })}
                   </ButtonGroup>
                 )}
@@ -255,9 +273,10 @@ export const Movie = (props) => {
                       >
                         {movieData.movieDetails.movie.directors &&
                           movieData.movieDetails.movie.directors.map(function (
-                            director
+                            director,
+                            index
                           ) {
-                            return <p>{director}</p>;
+                            return <p key={index}>{director}</p>;
                           })}
                       </Typography>
                     </Grid>
@@ -267,10 +286,10 @@ export const Movie = (props) => {
                 <h3>Comments:</h3>
                 <br></br>
                 {movieData.comments.length > 0 ? (
-                  movieData.comments.map(function (comment) {
+                  movieData.comments.map(function (comment, index) {
                     return (
                       <div>
-                        <Paper className={classes.paper}>
+                        <Paper className={classes.paper} key={index}>
                           {comment.comment}
                         </Paper>
                         <br></br>
@@ -290,7 +309,7 @@ export const Movie = (props) => {
                         props.match.params.movieId,
                         comment
                       );
-                      alert("Comment Added");
+                      setCommentAdded(true);
                     }}
                   >
                     <label>

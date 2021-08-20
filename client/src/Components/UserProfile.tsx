@@ -1,149 +1,207 @@
-import { useEffect, useState } from "react";
-import { LinearProgress } from "@material-ui/core";
-import axios from "axios";
-import firebase from "firebase/app";
-import { makeStyles } from "@material-ui/core/styles";
-import ImageList from "@material-ui/core/ImageList";
-import ImageListItem from "@material-ui/core/ImageListItem";
-import ImageListItemBar from "@material-ui/core/ImageListItemBar";
+import React from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-// import IconButton from "@material-ui/core/IconButton";
+import { moviesService } from "../movies.service";
+import firebase from "firebase/app";
+import EditFormModal from "./EditFormModal";
+import HighlightOffIcon from "@material-ui/icons/HighlightOff";
+import TrendingFlatIcon from "@material-ui/icons/TrendingFlat";
+import {
+  makeStyles,
+  ImageListItem,
+  ImageList,
+  ImageListItemBar,
+  Avatar,
+  Card,
+  CardContent,
+  Typography,
+  LinearProgress,
+  IconButton,
+} from "@material-ui/core";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    overflow: "hidden",
+    backgroundColor: theme.palette.background.paper,
+  },
+  imageList: {
+    flexWrap: "nowrap",
+    // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
+    transform: "translateZ(0)",
+  },
+  large: {
+    width: theme.spacing(24),
+    height: theme.spacing(24),
+  },
+  card: {
+    maxWidth: 350,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    margin: 30,
+    paddingTop: 30,
+  },
+  name: {
+    fontSize: 24,
+  },
+  pos: {
+    marginBottom: 12,
+  },
+  title: {
+    color: "white",
+  },
+}));
 
 export const UserProfile = (props) => {
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      display: "flex",
-      flexWrap: "wrap",
-      justifyContent: "space-around",
-      overflow: "hidden",
-      backgroundColor: theme.palette.background.paper,
-    },
-    imageList: {
-      flexWrap: "nowrap",
-      // Promote the list into his own layer on Chrome. This cost memory but helps keeping high FPS.
-      transform: "translateZ(0)",
-    },
-    title: {
-      color: "black",
-    },
-    titleBar: {
-      background: "white",
-    },
-  }));
-
   const classes = useStyles();
-  const [currentUser] = useState(firebase.auth().currentUser);
-  const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [error, setError] = useState(undefined);
+  const [userData, setUserData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(undefined);
+  const [currentUser] = React.useState(firebase.auth().currentUser);
   let wishList = null;
   let favorites = null;
 
   useEffect(() => {
-    (async () => {
-      console.log(userData);
-      console.log(currentUser);
+    async function fetchData() {
       try {
-        setLoading(true);
-        const { data } = await axios.get(`/users/${currentUser.uid}`);
-        console.log(data);
-        setUserData(data);
+        const response = await moviesService.getUserById(currentUser.uid);
+        setUserData(response);
         setLoading(false);
       } catch (e) {
         setError(e.messages);
-        console.log(error);
       }
-    })();
-  }, [currentUser, userData, error]);
+    }
+    fetchData();
+  }, [currentUser]);
 
-  const buildWishListItem = (result) => {
+  const handleDelete = async (id) => {
+    let isWish = userData.wishMovies.filter((e) => e._id === id).length > 0;
+    try {
+      if (isWish) {
+        const response = await moviesService.deleteWishlist(id);
+        console.log(response);
+      } else {
+        const response = await moviesService.deleteLike(id);
+        console.log(response);
+      }
+    } catch (e) {
+      console.log(e.messages);
+    }
+  };
+
+  const history = () => {
+    props.history.push("/profile");
+  };
+
+  const buildListItem = (result) => {
     return (
-      <ImageListItem key={result.movieId}>
-        <Link to={"movies/" + result.movieId}>
-          {result.img ? (
-            <img src={result.img} alt={result.title} />
-          ) : (
-            <p className="no-image-available">No image available</p>
-          )}
-
+      <ImageListItem key={result._id}>
+        <Link to={"movies/" + result._id}>
+          <img
+            src={
+              result.posterUrl
+                ? "https://image.tmdb.org/t/p/w500/" + result.posterUrl
+                : "/no-poster.jpg"
+            }
+            alt={result.title}
+          />
           <ImageListItemBar
-            title={`${result.title} (${result.year})`}
-            classes={{
-              root: classes.titleBar,
-              title: classes.title,
-            }}
+            title={result.title}
+            subtitle={<span>{result.year}</span>}
+            actionIcon={
+              <IconButton
+                onClick={async (e) => {
+                  e.preventDefault();
+                  await handleDelete(result._id);
+                }}
+              >
+                <HighlightOffIcon color="primary" className={classes.title} />
+              </IconButton>
+            }
           />
         </Link>
       </ImageListItem>
     );
   };
 
-  const buildFavListItem = (result) => {
-    return (
-      <ImageListItem key={result.movieId}>
-        <Link to={"movies/" + result.movieId}>
-          {result.img ? (
-            <img src={result.img} alt={result.title} />
-          ) : (
-            <p className="no-image-available">No image available</p>
-          )}
-
-          <ImageListItemBar
-            title={`${result.title} (${result.year})`}
-            classes={{
-              root: classes.titleBar,
-              title: classes.title,
-            }}
-          />
-        </Link>
-      </ImageListItem>
-    );
-  };
-
-  if (userData.wishList) {
+  if (userData) {
     wishList =
       userData &&
-      userData.wishList.map((item) => {
-        return buildWishListItem(item);
+      userData.wishMovies.map((item) => {
+        return buildListItem(item);
       });
   }
 
-  if (userData.favorites) {
+  if (userData) {
     favorites =
       userData &&
-      userData.favorites.map((item) => {
-        return buildFavListItem(item);
+      userData.likedMovies.map((item) => {
+        return buildListItem(item);
       });
   }
 
-  return (
-    <div>
-      <div>
-        {loading ? (
-          <LinearProgress color="secondary" />
-        ) : (
-          <div className="progress-placeholder"></div>
-        )}
-      </div>
-      <div className="profile-header">
-        <img src={currentUser.photoURL} alt="Profile" />
-        <p>Name: {currentUser.displayName}</p>
-        <p>Email: {currentUser.email}</p>
-      </div>
-      <h2> My Favorites </h2>
-      <div className={classes.root}>
-        <ImageList className={classes.imageList} rowHeight={350} cols={4}>
-          {favorites}
-        </ImageList>
-      </div>
-      <p>{` << Scroll >> `}</p>
-      <h2> My Wish List </h2>
-      <div className={classes.root}>
-        <ImageList className={classes.imageList} rowHeight={350} cols={4}>
-          {wishList}
-        </ImageList>
-      </div>
-      <p>{` << Scroll >> `}</p>
-    </div>
-  );
+  if (loading) {
+    return <div>Loading...</div>;
+  } else {
+    if (error) {
+      return (
+        <div>
+          <h1>{error}</h1>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <div>
+            {loading ? (
+              <LinearProgress color="secondary" />
+            ) : (
+              <div className="progress-placeholder"></div>
+            )}
+          </div>
+          <div className="profile-container">
+            <Card className={classes.card}>
+              <Avatar
+                alt="Profile"
+                src={currentUser.photoURL}
+                className={classes.large}
+              />
+              <CardContent>
+                <Typography variant="h5" component="h2">
+                  {currentUser.displayName}
+                </Typography>
+                <Typography className={classes.pos} color="textSecondary">
+                  {currentUser.email}
+                </Typography>
+              </CardContent>
+            </Card>
+            <EditFormModal
+              currentUser={currentUser}
+              history={() => {
+                history();
+              }}
+            />
+          </div>
+          <h2> My Favorites </h2>
+          <div className={classes.root}>
+            <ImageList className={classes.imageList} rowHeight={350} cols={4.5}>
+              {favorites}
+            </ImageList>
+          </div>
+          <TrendingFlatIcon />
+          <h2> My Wish List </h2>
+          <div className={classes.root}>
+            <ImageList className={classes.imageList} rowHeight={350} cols={4.5}>
+              {wishList}
+            </ImageList>
+          </div>
+          <TrendingFlatIcon />
+        </div>
+      );
+    }
+  }
 };

@@ -2,7 +2,9 @@ import axios from "axios";
 import firebase from "firebase/app";
 import { ExploreResponse } from "./models";
 
-const BASE_URL = "http://localhost:4200";
+const BASE_URL = window.location.href.includes("localhost")
+  ? "http://localhost:4200/api"
+  : "https://movie-mate-cs-554.herokuapp.com/api";
 
 class MoviesService {
   async explore(params: {
@@ -53,6 +55,45 @@ class MoviesService {
     }
   }
 
+  async getUserById(id: String) {
+    const token = await this.getToken();
+    const response = await axios.get(`${BASE_URL}/users/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  }
+
+  async updateUser(
+    id: string,
+    newName: string,
+    newEmail: string,
+    newPhotoURL: string
+  ) {
+    const token = await this.getToken();
+    let url = `${BASE_URL}/users/${id}`;
+    let data = {
+      name: newName,
+      email: newEmail,
+    };
+    await axios.put(url, data, {
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    const user = firebase.auth().currentUser;
+    await user.updateEmail(newEmail);
+    await user.updateProfile({
+      displayName: newName,
+      photoURL: newPhotoURL,
+    });
+  }
+
   async getMovieByID(id: number) {
     const token = await this.getToken();
     const response = await axios.get(`${BASE_URL}/movies/${id}`, {
@@ -82,7 +123,6 @@ class MoviesService {
   }
 
   async addLike(id: number) {
-    //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
     const user = firebase.auth().currentUser;
     const response = await axios.post(
@@ -98,7 +138,6 @@ class MoviesService {
     return response.data;
   }
   async deleteLike(id: number) {
-    //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
     const user = firebase.auth().currentUser;
     const response = await axios.delete(
@@ -128,7 +167,6 @@ class MoviesService {
     return response.data;
   }
   async deleteDislike(id: number) {
-    //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
     const user = firebase.auth().currentUser;
     const response = await axios.delete(
@@ -158,7 +196,6 @@ class MoviesService {
     return response.data;
   }
   async deleteWishlist(id: number) {
-    //todo will need to check if the movie is already disliked, and if so then remove it
     const token = await this.getToken();
     const user = firebase.auth().currentUser;
     const response = await axios.delete(

@@ -137,17 +137,15 @@ export const Movies = (props) => {
         {results.map((result: SearchResult) => (
           <ImageListItem key={result.movieId}>
             <Link to={"movies/" + result.movieId}>
-              {result.movie.posterPath ? (
-                <img
-                  src={
-                    "https://image.tmdb.org/t/p/w500/" + result.movie.posterPath
-                  }
-                  alt={result.movie.title}
-                />
-              ) : (
-                <p className="no-image-available">No image available</p>
-              )}
-
+              <img
+                src={
+                  result.movie.posterPath
+                    ? "https://image.tmdb.org/t/p/w500/" +
+                      result.movie.posterPath
+                    : "/no-poster.jpg"
+                }
+                alt={result.movie.title}
+              />
               <ImageListItemBar
                 title={result.movie.title}
                 subtitle={<span>{result.movie.releaseYear}</span>}
