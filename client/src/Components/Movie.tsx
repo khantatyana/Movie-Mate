@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { moviesService } from "../movies.service";
 import StarRatings from "react-star-ratings";
+import DeleteIcon from "@material-ui/icons/Delete";
+import firebase from "firebase/app";
 
 import {
   Grid,
@@ -45,7 +47,9 @@ const useStyles = makeStyles((theme) => ({
     background: "#ffd000",
   },
 }));
-
+async function deleteComment(movieId, commentId) {
+  console.log(await moviesService.deleteComment(movieId, commentId));
+}
 async function addToLike(id) {
   await moviesService.addLike(id);
 }
@@ -93,6 +97,7 @@ function timeDifference(previous) {
 
 export const Movie = (props) => {
   const [movieData, setMovieData] = useState(undefined);
+  const [currentUser] = React.useState(firebase.auth().currentUser);
   const [likeButtonClicked, setLikeButtonClicked] = useState(false);
   const [dislikeButtonClicked, setDislikeButtonClicked] = useState(false);
   const [wishButtonClicked, setwishButtonClicked] = useState(false);
@@ -354,6 +359,28 @@ export const Movie = (props) => {
                                 Posted {timeDifference(comment.createDate)}
                               </p>
                             </Grid>
+                            {comment.userId === currentUser.uid ? (
+                              <Grid
+                                item
+                                xs
+                                container
+                                direction="column"
+                                alignItems="flex-end"
+                                justify="flex-start"
+                              >
+                                <Button
+                                  onClick={() => {
+                                    deleteComment(
+                                      movieData.movieDetails.movieId,
+                                      comment._id
+                                    );
+                                    setCommentAdded(true);
+                                  }}
+                                >
+                                  <DeleteIcon></DeleteIcon>
+                                </Button>
+                              </Grid>
+                            ) : null}
                           </Grid>
                         </Paper>
                         <br></br>
