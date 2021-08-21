@@ -55,7 +55,8 @@ app.use(async (req, res, next) => {
     req.user = await usersData.getOrCreate(
       firebaseUser.uid,
       firebaseUser.name,
-      firebaseUser.email
+      firebaseUser.email,
+      firebaseUser.picture
     );
   } catch (err) {
     console.log(
