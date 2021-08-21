@@ -209,6 +209,20 @@ class MoviesService {
     );
     return response.data;
   }
+  async deleteComment(movieId: number, id: number) {
+    const token = await this.getToken();
+    const user = firebase.auth().currentUser;
+    const response = await axios.delete(
+      `${BASE_URL}/movies/${movieId}/comments/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  }
 }
 
 export const moviesService = new MoviesService();
