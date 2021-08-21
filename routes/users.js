@@ -4,6 +4,7 @@ const router = express.Router();
 const data = require("../data");
 const validators = require("../utils/validators");
 const routesUtils = require("./routes-utils");
+const redisClient = require("../config/redisConnection");
 
 router.post("/", async (req, res, next) => {
   const { name, email } = req.body;
@@ -147,6 +148,8 @@ router.post("/:userId/:movieList/:movieId", async (req, res, next) => {
     movieList
   );
 
+  await redisClient.delAsync(`movies:${movieId}`); // Invalidate movie cache
+
   res.json(result);
 });
 
@@ -199,6 +202,9 @@ router.delete("/:userId/:movieList/:movieId", async (req, res, next) => {
     movieId,
     movieList
   );
+
+  await redisClient.delAsync(`movies:${movieId}`); // Invalidate movie cache
+
   res.json(result);
 });
 
