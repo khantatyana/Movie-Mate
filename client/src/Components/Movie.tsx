@@ -5,6 +5,7 @@ import StarRatings from "react-star-ratings";
 import {
   Grid,
   makeStyles,
+  Avatar,
   Typography,
   Paper,
   ButtonGroup,
@@ -62,6 +63,32 @@ async function addToWishlist(id) {
 }
 async function deleteFromWish(id) {
   await moviesService.deleteWishlist(id);
+}
+
+function timeDifference(previous) {
+  let current = Date.now();
+
+  var msPerMinute = 60 * 1000;
+  var msPerHour = msPerMinute * 60;
+  var msPerDay = msPerHour * 24;
+  var msPerMonth = msPerDay * 30;
+  var msPerYear = msPerDay * 365;
+
+  var elapsed = current - Date.parse(previous.valueOf());
+
+  if (elapsed < msPerMinute) {
+    return Math.round(elapsed / 1000) + " seconds ago";
+  } else if (elapsed < msPerHour) {
+    return Math.round(elapsed / msPerMinute) + " minutes ago";
+  } else if (elapsed < msPerDay) {
+    return Math.round(elapsed / msPerHour) + " hours ago";
+  } else if (elapsed < msPerMonth) {
+    return "approximately " + Math.round(elapsed / msPerDay) + " days ago";
+  } else if (elapsed < msPerYear) {
+    return "approximately " + Math.round(elapsed / msPerMonth) + " months ago";
+  } else {
+    return "approximately " + Math.round(elapsed / msPerYear) + " years ago";
+  }
 }
 
 export const Movie = (props) => {
@@ -165,6 +192,15 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToLike(movieData.movieDetails.movieId);
+                    //check if they previously disliked the movie
+                    if (dislikeButtonClicked) {
+                      deleteFromDislike(movieData.movieDetails.movieId);
+                      setDislikeButtonClicked(false);
+                    }
+                    if (wishButtonClicked) {
+                      deleteFromWish(movieData.movieDetails.movieId);
+                      setwishButtonClicked(false);
+                    }
                     setLikeButtonClicked(true);
                   }}
                 >
@@ -187,6 +223,14 @@ export const Movie = (props) => {
                   onClick={() => {
                     addToWishlist(movieData.movieDetails.movieId);
                     setwishButtonClicked(true);
+                    if (dislikeButtonClicked) {
+                      deleteFromDislike(movieData.movieDetails.movieId);
+                      setDislikeButtonClicked(false);
+                    }
+                    if (likeButtonClicked) {
+                      deleteFromLike(movieData.movieDetails.movieId);
+                      setLikeButtonClicked(false);
+                    }
                   }}
                 >
                   Add to Wishlist
@@ -207,6 +251,14 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToDislike(movieData.movieDetails.movieId);
+                    if (likeButtonClicked) {
+                      deleteFromLike(movieData.movieDetails.movieId);
+                      setLikeButtonClicked(false);
+                    }
+                    if (wishButtonClicked) {
+                      deleteFromWish(movieData.movieDetails.movieId);
+                      setwishButtonClicked(false);
+                    }
                     setDislikeButtonClicked(true);
                   }}
                 >
@@ -289,8 +341,20 @@ export const Movie = (props) => {
                   movieData.comments.map(function (comment, index) {
                     return (
                       <div>
-                        <Paper className={classes.paper} key={index}>
-                          {comment.comment}
+                        <Paper style={{ padding: "40px 20px", marginTop: 10 }}>
+                          <Grid container wrap="nowrap" spacing={2}>
+                            <Grid item xs zeroMinWidth>
+                              <h4 style={{ margin: 0, textAlign: "left" }}>
+                                {comment.userName}
+                              </h4>
+                              <p style={{ textAlign: "left" }}>
+                                {comment.comment}
+                              </p>
+                              <p style={{ textAlign: "left", color: "gray" }}>
+                                Posted {timeDifference(comment.createDate)}
+                              </p>
+                            </Grid>
+                          </Grid>
                         </Paper>
                         <br></br>
                       </div>
