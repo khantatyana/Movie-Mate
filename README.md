@@ -7,6 +7,7 @@ Local Development Instructions
 
 1. save `.env` in `/Movie-Mate`
 2.  ```bash
+    redis-server
     npm install
     npm run start:dev
     ```
