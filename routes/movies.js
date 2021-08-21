@@ -101,8 +101,9 @@ router.post("/:id/comments", async (req, res, next) => {
 
     const movieObject = await data.movies.addComment(
       movieId,
-      req.user._id,
+      req.user.id,
       req.user.name,
+      req.user.pictureUrl,
       comment
     );
 
