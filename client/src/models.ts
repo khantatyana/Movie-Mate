@@ -39,3 +39,15 @@ export interface Movie {
 
 // todo - see if we actually need this
 export interface MovieUserData {}
+
+export interface RecommendationsResponse {
+  status: "COMPUTING" | "READY";
+  recommendations: RecommendedMovie[];
+}
+
+export interface RecommendedMovie {
+  posterUrl: string;
+  title: string;
+  year: number;
+  _id: number;
+}

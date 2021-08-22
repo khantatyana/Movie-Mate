@@ -1,6 +1,6 @@
 import axios from "axios";
 import firebase from "firebase/app";
-import { ExploreResponse } from "./models";
+import { ExploreResponse, RecommendationsResponse } from "./models";
 
 const BASE_URL = window.location.href.includes("localhost")
   ? "http://localhost:4200/api"
@@ -31,6 +31,18 @@ class MoviesService {
         },
       }
     );
+    return response.data;
+  }
+
+  async getRecommendations(): Promise<RecommendationsResponse> {
+    const token = await this.getToken();
+
+    const response = await axios.get(`${BASE_URL}/users/recommendations`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   }
 
@@ -211,7 +223,6 @@ class MoviesService {
   }
   async deleteComment(movieId: number, id: number) {
     const token = await this.getToken();
-    const user = firebase.auth().currentUser;
     const response = await axios.delete(
       `${BASE_URL}/movies/${movieId}/comments/${id}`,
       {
