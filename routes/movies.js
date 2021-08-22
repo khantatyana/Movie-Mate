@@ -6,7 +6,7 @@ const xss = require("xss");
 const routesUtils = require("./routes-utils");
 const redisClient = require("../config/redisConnection");
 
-router.get("/explore", async (req, res, next) => {
+router.get("/explore", async (req, res) => {
   try {
     const redisKey = `movies:${JSON.stringify(req.query)}`;
     if (await redisClient.existsAsync(redisKey)) {
@@ -24,7 +24,7 @@ router.get("/explore", async (req, res, next) => {
   }
 });
 
-router.get("/genres", async (req, res, next) => {
+router.get("/genres", async (req, res) => {
   try {
     const redisKey = `movies:genres`;
     if (await redisClient.existsAsync(redisKey)) {
@@ -46,7 +46,7 @@ router.get("/genres", async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", async (req, res) => {
   try {
     const movieId = req.params.id;
 
@@ -80,7 +80,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/:id/comments", async (req, res, next) => {
+router.post("/:id/comments", async (req, res) => {
   try {
     const movieId = req.params.id;
 
@@ -115,7 +115,7 @@ router.post("/:id/comments", async (req, res, next) => {
   }
 });
 
-router.delete("/:id/comments/:commentId", async (req, res, next) => {
+router.delete("/:id/comments/:commentId", async (req, res) => {
   const movieId = req.params.id;
   const commentId = req.params.commentId;
 
@@ -151,7 +151,7 @@ router.delete("/:id/comments/:commentId", async (req, res, next) => {
   res.json(movieObject);
 });
 
-router.put("/:id/comments/:commentId", async (req, res, next) => {
+router.put("/:id/comments/:commentId", async (req, res) => {
   const movieId = req.params.id;
   const commentId = req.params.commentId;
   const commentText = xss(req.body.comment);
