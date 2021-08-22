@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { Link } from "react-router-dom";
+import { moviesService } from "../movies.service";
 import {
   Card,
   CardActionArea,
@@ -53,11 +54,12 @@ const Recommendations = (props) => {
       try {
         //make the call to the DB or API to grab the data
         //TODO
-        const url = "";
-        const { data } = await axios.get(url);
-        setMovieData(data.data.results);
-        console.log(data.data.results);
+
+        const data = await moviesService.getRecommendations();
+        setMovieData(data);
+        console.log(data);
         setLoading(false);
+        console.log(MovieData);
       } catch (e) {
         console.log(e);
       }
@@ -113,17 +115,27 @@ const Recommendations = (props) => {
   }
 
   if (loading) {
-    return (
-      <div>
-        <h2>Loading....</h2>
-      </div>
-    );
+    if (loading && MovieData == undefined) {
+      return (
+        <div>
+          <h2>No Recommendations yet....</h2>
+          <p>Like, Dislike or Add to Wishlist to improve the recommendations</p>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <h2>Loading....</h2>
+        </div>
+      );
+    }
   } else {
     //check that the moviedata is greater than 1
     if (MovieData === null || MovieData.length === 0) {
       return (
         <div>
-          <h1>404: Page not Found</h1>
+          <h2>No Recommendations yet....</h2>
+          <p>Like, Dislike or Add to Wishlist to improve the recommendations</p>
         </div>
       );
     } else {

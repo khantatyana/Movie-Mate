@@ -7,6 +7,7 @@ const mongooseConnection = require("./config/mongoConnection");
 const configRoutes = require("./routes");
 const usersData = require("./data/users");
 const nocache = require("nocache");
+const session = require("express-session");
 
 const PORT = process.env.PORT || 4200;
 
@@ -32,12 +33,16 @@ app.use(nocache());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  session({ secret: "keyboard cat", resave: true, saveUninitialized: true })
+); // session secret
 
-app.use(express.static("client/build"));
+app.use(express.static("client/public"));
 
 app.get("*", (req, res, next) => {
   if (!req.path.startsWith("/api")) {
-    res.sendfile(__dirname + "/client/build/index.html");
+    //res.sendfile(__dirname + "/client/build/index.html");
+    res.sendfile(__dirname + "/client/public/index.html");
   } else {
     next();
   }
@@ -73,6 +78,15 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+app.use(
+  session({
+    name: "AuthCookie",
+    secret: "This is a secret.. shhh don't tell anyone",
+    saveUninitialized: true,
+    resave: false,
+  })
+);
 
 configRoutes(app);
 

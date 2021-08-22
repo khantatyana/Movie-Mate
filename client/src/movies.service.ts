@@ -55,6 +55,21 @@ class MoviesService {
     }
   }
 
+  async getRecommendations(): Promise<string[]> {
+    try {
+      const token = await this.getToken();
+
+      const { data } = await axios.get(`${BASE_URL}/recommendations`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
   async getUserById(id: String) {
     const token = await this.getToken();
     const response = await axios.get(`${BASE_URL}/users/${id}`, {

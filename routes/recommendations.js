@@ -14,16 +14,23 @@ router.get("/", async (req, res) => {
 
   if (!likedMovies) res.json([]);
 
-  likedMovies.map((v) => {
-    v.title;
-  });
-
+  list = [];
+  for (let item of likedMovies) {
+    list.push(item.title);
+  }
+  console.log(list);
   // generates list of recommendations (with movie titles)
-  let recs = await recommender(likedMovies, 20);
+
+  let recs = await await recommender.getRecommendations(list, 20);
+  //let recs = await recommender.getRecommendations(['Batman Begins', 'Jumanji', 'Capote'], 20);
+  //console.log(recs)
   movieInfo = [];
   for (let rec of recs) {
-    let m = movies.getMovieById(rec);
+    let m = await movies.getMovieById(Number.parseInt(rec.movie.id));
     movieInfo.push(m);
   }
+  //console.log(movieInfo)
   res.json(movieInfo);
 });
+
+module.exports = router;

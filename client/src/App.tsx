@@ -20,6 +20,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { Movie } from "./Components/Movie";
+import Recommendations from "./Components/Recommendations";
 import {
   Box,
   Icon,
@@ -124,22 +125,24 @@ function App() {
 
             <Box display="flex" flexDirection="row">
               {/* Nav pages  */}
-              <Tabs>
-                <Tab
-                  label="Explore Movies"
-                  component={NavLink}
-                  exact
-                  to="/movies"
-                  activeClassName={classes.activeTab}
-                />
-                <Tab
-                  label="My Recommendations"
-                  component={NavLink}
-                  exact
-                  to="/recommendations"
-                  activeClassName={classes.activeTab}
-                />
-              </Tabs>
+              {authenticated ? (
+                <Tabs value={false}>
+                  <Tab
+                    label="Explore Movies"
+                    component={NavLink}
+                    exact
+                    to="/movies"
+                    activeClassName={classes.activeTab}
+                  />
+                  <Tab
+                    label="My Recommendations"
+                    component={NavLink}
+                    exact
+                    to="/recommendations"
+                    activeClassName={classes.activeTab}
+                  />
+                </Tabs>
+              ) : null}
             </Box>
 
             <Box display="flex" flexDirection="row">
@@ -153,7 +156,6 @@ function App() {
                     onClick={handleMenu}
                     color="inherit"
                   >
-                    {console.log(loggedUser)}
                     {loggedUser && loggedUser.photoURL ? (
                       <Avatar alt={loggedUser.name} src={loggedUser.photoURL} />
                     ) : (
@@ -199,6 +201,11 @@ function App() {
               <Route exact path="/movies/:movieId" component={Movie} />
               <Route exact path="/404" component={NotFound} />
               <Route exact path="/profile" component={UserProfile} />
+              <Route
+                exact
+                path="/recommendations"
+                component={Recommendations}
+              />
               <Redirect from="" to="/movies" />
             </Switch>
           </div>
