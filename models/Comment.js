@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const CommentSchema = new mongoose.Schema({
   userId: { type: String, required: true },
   userName: { type: String, required: true },
+  userPhotoURL: { type: String },
   comment: { type: String, required: true },
   createDate: { type: Date, default: Date.now },
   _id: { type: String, default: uuidv4 },

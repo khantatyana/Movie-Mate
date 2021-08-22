@@ -4,28 +4,58 @@ const data = require("../data");
 const validators = require("../utils/validators");
 const xss = require("xss");
 const routesUtils = require("./routes-utils");
+const redisClient = require("../config/redisConnection");
 
-router.get("/explore", async (req, res, next) => {
+router.get("/explore", async (req, res) => {
   try {
+    const redisKey = `movies:${JSON.stringify(req.query)}`;
+    if (await redisClient.existsAsync(redisKey)) {
+      console.log(`Getting ${redisKey} from cache`);
+      return res.json(JSON.parse(await redisClient.getAsync(redisKey)));
+    }
+
     const result = await data.movielens.queryMovies(req.query);
+
+    await redisClient.setAsync(redisKey, JSON.stringify(result), "EX", 60 * 60); // one hour
+
     res.json(result);
   } catch (e) {
     res.status(500).json(e);
   }
 });
 
-router.get("/genres", async (req, res, next) => {
+router.get("/genres", async (req, res) => {
   try {
+    const redisKey = `movies:genres`;
+    if (await redisClient.existsAsync(redisKey)) {
+      console.log(`Getting ${redisKey} from cache`);
+      return res.json(JSON.parse(await redisClient.getAsync(redisKey)));
+    }
     const result = await data.movielens.getGenres();
+
+    await redisClient.setAsync(
+      redisKey,
+      JSON.stringify(result),
+      "EX",
+      60 * 60 * 24
+    ); // a day
+
     res.json(result);
   } catch (e) {
     res.status(500).json(e);
   }
 });
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", async (req, res) => {
   try {
     const movieId = req.params.id;
+
+    const redisKey = `movies:${movieId}`;
+    if (await redisClient.existsAsync(redisKey)) {
+      console.log(`Getting ${redisKey} from cache`);
+      return res.json(JSON.parse(await redisClient.getAsync(redisKey)));
+    }
+
     if (!validators.isPositiveNumber(movieId)) {
       res.status(400).json({ error: "You must provide valid movie ID" });
       return;
@@ -42,13 +72,15 @@ router.get("/:id", async (req, res, next) => {
     );
     movielensMovie.userWish = req.user.wishMovies.some((m) => m.id === movieId);
 
+    await redisClient.setAsync(redisKey, JSON.stringify(movielensMovie));
+
     res.json(movielensMovie); // We return movielens movie with comments filled in from our database
   } catch (e) {
     res.status(500).json(e);
   }
 });
 
-router.post("/:id/comments", async (req, res, next) => {
+router.post("/:id/comments", async (req, res) => {
   try {
     const movieId = req.params.id;
 
@@ -69,17 +101,21 @@ router.post("/:id/comments", async (req, res, next) => {
 
     const movieObject = await data.movies.addComment(
       movieId,
-      req.user._id,
+      req.user.id,
       req.user.name,
+      req.user.pictureUrl,
       comment
     );
+
+    await redisClient.delAsync(`movies:${movieId}`); // Invalidate movie cache
+
     res.json(movieObject);
   } catch (e) {
     res.status(500).json(e);
   }
 });
 
-router.delete("/:id/comments/:commentId", async (req, res, next) => {
+router.delete("/:id/comments/:commentId", async (req, res) => {
   const movieId = req.params.id;
   const commentId = req.params.commentId;
 
@@ -109,10 +145,13 @@ router.delete("/:id/comments/:commentId", async (req, res, next) => {
   if (!routesUtils.authorizeUser(commentData.userId, req, res)) return;
 
   const movieObject = await data.movies.removeComment(movieId, commentId);
+
+  await redisClient.delAsync(`movies:${movieId}`); // Invalidate movie cache
+
   res.json(movieObject);
 });
 
-router.put("/:id/comments/:commentId", async (req, res, next) => {
+router.put("/:id/comments/:commentId", async (req, res) => {
   const movieId = req.params.id;
   const commentId = req.params.commentId;
   const commentText = xss(req.body.comment);
@@ -147,6 +186,9 @@ router.put("/:id/comments/:commentId", async (req, res, next) => {
     commentId,
     commentText
   );
+
+  await redisClient.delAsync(`movies:${movieId}`); // Invalidate movie cache
+
   res.json(movieObject);
 });
 

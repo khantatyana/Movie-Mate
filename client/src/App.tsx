@@ -124,7 +124,7 @@ function App() {
 
             <Box display="flex" flexDirection="row">
               {/* Nav pages  */}
-              <Tabs>
+              <Tabs value={false}>
                 <Tab
                   label="Explore Movies"
                   component={NavLink}
@@ -153,7 +153,6 @@ function App() {
                     onClick={handleMenu}
                     color="inherit"
                   >
-                    {console.log(loggedUser)}
                     {loggedUser && loggedUser.photoURL ? (
                       <Avatar alt={loggedUser.name} src={loggedUser.photoURL} />
                     ) : (

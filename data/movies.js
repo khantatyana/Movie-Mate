@@ -33,7 +33,7 @@ async function getMovieById(movieId) {
   return movie;
 }
 
-async function addComment(movieId, userId, userName, comment) {
+async function addComment(movieId, userId, userName, userPhotoURL, comment) {
   if (!validators.isNonEmptyString(userId))
     throw "Please provide a valid user ID";
   if (!validators.isPositiveNumber(movieId))
@@ -43,7 +43,12 @@ async function addComment(movieId, userId, userName, comment) {
 
   const movie = await getMovieById(movieId);
 
-  const commentObj = models.Comment({ userId, comment, userName });
+  const commentObj = models.Comment({
+    userId,
+    comment,
+    userName,
+    userPhotoURL,
+  });
 
   movie.comments.push(commentObj);
 
@@ -68,7 +73,11 @@ async function removeComment(movieId, commentId) {
 
   const movie = await getMovieById(movieId);
 
-  _.remove(movie.comments, (comment) => comment._id == commentId);
+  const comment = movie.comments.id(commentId);
+
+  if (comment) {
+    comment.remove();
+  }
 
   return await saveSafely(movie);
 }
