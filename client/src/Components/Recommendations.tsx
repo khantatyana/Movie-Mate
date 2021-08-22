@@ -70,23 +70,33 @@ const Recommendations = (props) => {
   //method to generate a new card
   const buildCard = (movie) => {
     return (
-      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={movie._id}>
+      <Grid
+        item
+        xs={12}
+        sm={6}
+        md={4}
+        lg={3}
+        xl={2}
+        key={movie._id ? movie._id : movie.movie.movieId}
+      >
         <Card className={classes.card} variant="outlined">
           <CardActionArea>
-            <Link to={`/movies/${movie._id}`}>
+            <Link to={`/movies/${movie._id ? movie._id : movie.movie.movieId}`}>
               <CardMedia
                 className={classes.media}
                 component="img"
                 image={movie.image}
-                title="Movie image"
               />
               <img
                 src={
                   movie.posterUrl
                     ? "https://image.tmdb.org/t/p/w500/" + movie.posterUrl
+                    : movie.movie.posterPath
+                    ? "https://image.tmdb.org/t/p/w500/" +
+                      movie.movie.posterPath
                     : "/no-poster.jpg"
                 }
-                alt={movie.title}
+                alt={movie.title ? movie.title : movie.movie.title}
               />
               <CardContent>
                 <Typography
@@ -95,11 +105,13 @@ const Recommendations = (props) => {
                   variant="h6"
                   component="h2"
                 >
-                  {movie.title}
+                  {movie.title ? movie.title : movie.movie.title}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
                   {movie.description
                     ? movie.description
+                    : movie.movie
+                    ? movie.movie.plotSummary
                     : "No description available"}
                   <br></br>
                   <span>More Info</span>

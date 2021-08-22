@@ -39,4 +39,19 @@ module.exports = {
       }
     }
   },
+
+  async getSimilarMovies(movielensId, limit = -1) {
+    if (!validators.isPositiveNumber(movielensId))
+      throw new "Please provide a valid MovieLens ID"();
+
+    let { data } = await movielens.get(cookie, `movies/${movielensId}/similar`);
+    let similarMovies = [];
+    if (data && data.similarMovies && data.similarMovies.searchResults) {
+      similarMovies = data.similarMovies.searchResults;
+      if (limit > 0 && similarMovies.length > limit) {
+        similarMovies = similarMovies.slice(0, limit);
+      }
+    }
+    return similarMovies;
+  },
 };
