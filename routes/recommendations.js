@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
     console.log(list);
     // generates list of recommendations (with movie titles)
 
-    let recs = await recommender.getRecommendations(list, 20);
+    let recs = await recommender.getRecommendations(list, 50);
     // let recs = await recommender.getRecommendations(['Batman Begins', 'Jumanji', 'Capote'], 20);
     console.log(
       "================================================================"

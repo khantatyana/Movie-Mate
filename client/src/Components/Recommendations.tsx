@@ -70,17 +70,24 @@ const Recommendations = (props) => {
   //method to generate a new card
   const buildCard = (movie) => {
     return (
-      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={movie.id}>
+      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={movie._id}>
         <Card className={classes.card} variant="outlined">
           <CardActionArea>
-            <Link to={`/movies/${movie.id}`}>
+            <Link to={`/movies/${movie._id}`}>
               <CardMedia
                 className={classes.media}
                 component="img"
                 image={movie.image}
                 title="Movie image"
               />
-
+              <img
+                src={
+                  movie.posterUrl
+                    ? "https://image.tmdb.org/t/p/w500/" + movie.posterUrl
+                    : "/no-poster.jpg"
+                }
+                alt={movie.title}
+              />
               <CardContent>
                 <Typography
                   className={classes.titleHead}
@@ -88,7 +95,7 @@ const Recommendations = (props) => {
                   variant="h6"
                   component="h2"
                 >
-                  {movie.name}
+                  {movie.title}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
                   {movie.description
