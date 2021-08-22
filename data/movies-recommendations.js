@@ -1,10 +1,10 @@
 const { parentPort, workerData } = require("worker_threads");
 const { likedMovies } = workerData;
-const { getRecommendations } = require("movie-recommender");
+const recommender = require("movie-recommender");
 const { movies } = require(".");
 
 async function getRecommendations(likedMovies) {
-  let recommendedMovies = await getRecommendations(likedMovies, 20);
+  let recommendedMovies = await recommender.getRecommendations(likedMovies, 20);
   recommendedMovies = recommendedMovies.map((v) => {
     movies.getMovieById(v);
   });
