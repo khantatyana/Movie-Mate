@@ -6,7 +6,7 @@ const { movies } = require(".");
 async function getRecommendations(likedMovies) {
   let recommendedMovies = await getRecommendations(likedMovies, 20);
   recommendedMovies = recommendedMovies.map((v) => {
-    await movies.getMovieById(v);
+    movies.getMovieById(v);
   });
   /* Mock data
   const recommendedMovies = [
