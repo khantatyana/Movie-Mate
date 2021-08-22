@@ -115,20 +115,20 @@ const Recommendations = (props) => {
   }
 
   if (loading) {
-    if (loading && MovieData == undefined) {
-      return (
-        <div>
-          <h2>No Recommendations yet....</h2>
-          <p>Like, Dislike or Add to Wishlist to improve the recommendations</p>
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <h2>Loading....</h2>
-        </div>
-      );
-    }
+    // if (loading && MovieData == undefined) {
+    //   return (
+    //     <div>
+    //       <h2>No Recommendations yet....</h2>
+    //       <p>Like, Dislike or Add to Wishlist to improve the recommendations</p>
+    //     </div>
+    //   );
+    // } else {
+    return (
+      <div>
+        <h2>Loading....</h2>
+      </div>
+    );
+    // }
   } else {
     //check that the moviedata is greater than 1
     if (MovieData === null || MovieData.length === 0) {
