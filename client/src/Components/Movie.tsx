@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 async function deleteComment(movieId, commentId) {
-  console.log(await moviesService.deleteComment(movieId, commentId));
+  await moviesService.deleteComment(movieId, commentId);
 }
 async function addToLike(id) {
   await moviesService.addLike(id);
@@ -140,17 +140,13 @@ export const Movie = (props) => {
         const response = await moviesService.getMovieByID(
           props.match.params.movieId
         );
-        console.log(response);
+        //console.log(response);
         setMovieData(response);
         setLoading(false);
         setCommentAdded(false);
         setLikeButtonClicked(response.userLiked);
         setDislikeButtonClicked(response.userDisliked);
         setwishButtonClicked(response.userWish);
-        console.log(likeButtonClicked);
-        console.log(dislikeButtonClicked);
-        console.log(wishButtonClicked);
-        console.log(movieData);
       } catch (e) {
         console.log(e);
       }
@@ -348,12 +344,18 @@ export const Movie = (props) => {
                       <div>
                         <Paper style={{ padding: "40px 20px", marginTop: 10 }}>
                           <Grid container wrap="nowrap" spacing={2}>
+                            <Grid item>
+                              <Avatar
+                                alt="UserIcon"
+                                src={comment.userPhotoURL}
+                              />
+                            </Grid>
                             <Grid item xs zeroMinWidth>
                               <h4 style={{ margin: 0, textAlign: "left" }}>
                                 {comment.userName}
                               </h4>
                               <p style={{ textAlign: "left" }}>
-                                {comment.comment}
+                                "{comment.comment}"
                               </p>
                               <p style={{ textAlign: "left", color: "gray" }}>
                                 Posted {timeDifference(comment.createDate)}
