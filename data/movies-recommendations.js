@@ -1,12 +1,14 @@
 const { parentPort, workerData } = require("worker_threads");
-
 const { likedMovies } = workerData;
+const { getRecommendations } = require("movie-recommender");
+const { movies } = require(".");
 
-async function getRecommendations() {
-  /*** Start of mocking block, Call recommendation instead of this block. */
-  console.log("Inside getRecommendations");
-  await new Promise((resolve) => setTimeout(resolve, 30 * 1000)); // Just wait 1 min to simulate calculations
-
+async function getRecommendations(likedMovies) {
+  let recommendedMovies = await getRecommendations(likedMovies, 20);
+  recommendedMovies = recommendedMovies.map((v) => {
+    movies.getMovieById(v);
+  });
+  /* Mock data
   const recommendedMovies = [
     {
       _id: 246664,
@@ -32,8 +34,7 @@ async function getRecommendations() {
       year: 2021,
       posterUrl: "/M7SUK85sKjaStg4TKhlAVyGlz3.jpg",
     },
-  ];
-  /*** End of mocking block */
+  ];*/
 
   parentPort.postMessage(recommendedMovies);
 }
