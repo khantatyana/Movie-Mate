@@ -39,4 +39,20 @@ module.exports = {
       }
     }
   },
+
+  async getMovies(movielensId) {
+    if (!validators.isPositiveNumber(movielensId))
+      throw new "Please provide a valid MovieLens ID"();
+
+    try {
+      const movies = await movielens.get(cookie, `movies`);
+      return movies.data;
+    } catch (e) {
+      if (e.response.status >= 400 && e.response.status < 500) {
+        return undefined; // Didn't find such movie
+      } else {
+        throw e;
+      }
+    }
+  },
 };
