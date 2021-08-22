@@ -40,19 +40,18 @@ module.exports = {
     }
   },
 
-  async getMovies(movielensId) {
+  async getSimilarMovies(movielensId, limit = -1) {
     if (!validators.isPositiveNumber(movielensId))
       throw new "Please provide a valid MovieLens ID"();
 
-    try {
-      const movies = await movielens.get(cookie, `movies`);
-      return movies.data;
-    } catch (e) {
-      if (e.response.status >= 400 && e.response.status < 500) {
-        return undefined; // Didn't find such movie
-      } else {
-        throw e;
+    let { data } = await movielens.get(cookie, `movies/${movielensId}/similar`);
+    let similarMovies = [];
+    if (data && data.similarMovies && data.similarMovies.searchResults) {
+      similarMovies = data.similarMovies.searchResults;
+      if (limit > 0 && similarMovies.length > limit) {
+        similarMovies = similarMovies.slice(0, limit);
       }
     }
+    return similarMovies;
   },
 };
