@@ -1,71 +1,52 @@
 const express = require("express");
 const router = express.Router();
 const movies = require("../data/movies");
+const { getUserById } = require("../data/users")
 const routesUtils = require("./routes-utils");
-const recommender = require("movie-recommender")
+const recommender = require("movie-recommender");
+const redis = require('redis');
+const client = redis.createClient();
+/**
+ * TODO: Import bluebird & redis
+ */
 
-router.get("/", async (req, res, next) => {
+const bluebird = require('bluebird')
+const { argsToArgsConfig } = require('graphql/type/definition')
+
+bluebird.promisifyAll(redis.RedisClient.prototype);
+bluebird.promisifyAll(redis.Multi.prototype);
+
+router.get("/", async (req, res) => {
     if (!routesUtils.authenticateUser(req, res)) return;
-    // fetches list of user's liked movies
-    let userId = req.user.userId
-    let likedMoves = req.user.liked
 
-    if(!likedMoves) return;
-
-    likedMoves.map((v) => {
-        likedMoves.title
-    })
-
-    // generates list of recommendations (with movie titles)
-    let recs = await recommender(likedMoves, 20)
-
-    // returns list in following format
-    /*
-
-[
-        {
-    "movie": {
-      "id": "398",
-      "adult": "False",
-      "budget": "7000000",
-      "genres": [
-        {
-          "id": 80,
-          "name": "Crime"
-        },
-        {
-          "id": 18,
-          "name": "Drama"
-        }
-      ],
-      "homepage": "http://www.sonyclassics.com/capote/",
-      "language": "en",
-      "title": "Capote",
-      "overview": [
-          ...
-      ],
-      "popularity": "6.01272",
-      "studio": [
-        ...
-      ],
-      "release": "2005-09-30",
-      "revenue": "49084830",
-      "runtime": "114.0",
-      "voteAverage": "6.9",
-      "voteCount": "394",
-      "keywords": [
-        
-      ]
-    },
-    "score": 0.4806318410839867
-  }
-]
-
-    */
-    movieInfo = []
-    for(let rec of recs) {
-        let m = movies.getMovieById(rec.id)
-        movieInfo.push(m)
+    let recCache = await client.getAsync('recCache')
+    if(recCache) {
+      let oldRecs = await client.getAsync('recs')
+      res.json(JSON.parse(oldRecs))
+    } else {
+      let newRecs = getNewRecommendations(req.user.userId)
+      client.setAsync('recs', JSON.stringify(newRecs))
+      client.setAsync('recCache', true)
+      res.json(newRecs)
     }
-    res.json(movieInfo)
 });
+
+async function getNewRecommendations(userId) {
+  let user = await getUserById(userId)
+  // not sure exacy form in MongoDB
+  likedMovies = user.likedMovies
+  if(!likedMovies) return;
+
+  likedMovies.map((v) => {
+      v.title
+  })
+
+  // generates list of recommendations (with movie titles)
+  let recs = await recommender(likedMovies, 20)
+  movieInfo = []
+  for(let rec of recs) {
+      let m = movies.getMovieById(rec.id)
+      movieInfo.push(m)
+  }
+  return movieInfo
+}
