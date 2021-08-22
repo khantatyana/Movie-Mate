@@ -29,7 +29,12 @@ router.get("/recommendations", async (req, res) => {
       if (status !== "COMPUTING") {
         // We will need to compute recommendations
         console.log(`Starting recommendations for user ${req.user.name}.`);
-        likedTitles = req.user.likedMovies.map((m) => m.title);
+        likedTitles = req.user.likedMovies.map((m) => {
+          return {
+            id: m.id,
+            title: m.title,
+          };
+        });
         const worker = new Worker(
           `${__dirname}/../data/movies-recommendations.js`,
           {
