@@ -3,7 +3,7 @@ const { likedMovies } = workerData;
 const recommender = require("movie-recommender");
 const { movies } = require(".");
 
-async function getRecommendations(likedMovies) {
+async function getRecommendations() {
   let recommendedMovies = await recommender.getRecommendations(likedMovies, 20);
   recommendedMovies = recommendedMovies.map((v) => {
     movies.getMovieById(v);
