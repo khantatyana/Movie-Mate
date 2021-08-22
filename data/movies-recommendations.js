@@ -56,4 +56,6 @@ async function getRecommendations() {
   parentPort.postMessage(recommendations);
 }
 
-getRecommendations();
+module.exports = {
+  getRecommendations,
+};

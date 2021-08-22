@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { Link } from "react-router-dom";
+import { moviesService } from "../movies.service";
+import recs from "../../../data/movies-recommendations";
 import {
   Card,
   CardActionArea,
@@ -53,11 +55,11 @@ const Recommendations = (props) => {
       try {
         //make the call to the DB or API to grab the data
         //TODO
-        const url = "";
-        const { data } = await axios.get(url);
-        setMovieData(data.data.results);
-        console.log(data.data.results);
+        const data = await recs.getRecommendations();
+        setMovieData(data);
+        console.log(data);
         setLoading(false);
+        console.log(MovieData);
       } catch (e) {
         console.log(e);
       }
@@ -68,17 +70,24 @@ const Recommendations = (props) => {
   //method to generate a new card
   const buildCard = (movie) => {
     return (
-      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={movie.id}>
+      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={movie._id}>
         <Card className={classes.card} variant="outlined">
           <CardActionArea>
-            <Link to={`/movies/${movie.id}`}>
+            <Link to={`/movies/${movie._id}`}>
               <CardMedia
                 className={classes.media}
                 component="img"
                 image={movie.image}
                 title="Movie image"
               />
-
+              <img
+                src={
+                  movie.posterUrl
+                    ? "https://image.tmdb.org/t/p/w500/" + movie.posterUrl
+                    : "/no-poster.jpg"
+                }
+                alt={movie.title}
+              />
               <CardContent>
                 <Typography
                   className={classes.titleHead}
@@ -86,7 +95,7 @@ const Recommendations = (props) => {
                   variant="h6"
                   component="h2"
                 >
-                  {movie.name}
+                  {movie.title}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" component="p">
                   {movie.description
@@ -113,17 +122,27 @@ const Recommendations = (props) => {
   }
 
   if (loading) {
+    // if (loading && MovieData == undefined) {
+    //   return (
+    //     <div>
+    //       <h2>No Recommendations yet....</h2>
+    //       <p>Like, Dislike or Add to Wishlist to improve the recommendations</p>
+    //     </div>
+    //   );
+    // } else {
     return (
       <div>
         <h2>Loading....</h2>
       </div>
     );
+    // }
   } else {
     //check that the moviedata is greater than 1
     if (MovieData === null || MovieData.length === 0) {
       return (
         <div>
-          <h1>404: Page not Found</h1>
+          <h2>No Recommendations yet....</h2>
+          <p>Like, Dislike or Add to Wishlist to improve the recommendations</p>
         </div>
       );
     } else {
