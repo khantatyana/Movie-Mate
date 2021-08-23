@@ -42,7 +42,7 @@ export interface MovieUserData {}
 
 export interface RecommendationsResponse {
   status: "COMPUTING" | "READY";
-  recommendations: RecommendedMovie[];
+  recommendations: Movie[];
 }
 
 export interface RecommendedMovie {

@@ -5,7 +5,7 @@ import { moviesService } from "../movies.service";
 import ImageList from "@material-ui/core/ImageList";
 import ImageListItem from "@material-ui/core/ImageListItem";
 import ImageListItemBar from "@material-ui/core/ImageListItemBar";
-import { RecommendedMovie } from "../models";
+import { Movie } from "../models";
 
 const useInterval = (callback, delay) => {
   const savedCallback = React.useRef();
@@ -53,20 +53,20 @@ export const Recommendations = () => {
       </div>
 
       <ImageList rowHeight={400} cols={6}>
-        {recommendations.map((result: RecommendedMovie) => (
-          <ImageListItem key={result._id}>
-            <Link to={"movies/" + result._id}>
+        {recommendations.map((result: Movie) => (
+          <ImageListItem key={result.movieId}>
+            <Link to={"movies/" + result.movieId}>
               <img
                 src={
-                  result.posterUrl
-                    ? "https://image.tmdb.org/t/p/w500/" + result.posterUrl
+                  result.posterPath
+                    ? "https://image.tmdb.org/t/p/w500/" + result.posterPath
                     : "/no-poster.jpg"
                 }
                 alt={result.title}
               />
               <ImageListItemBar
                 title={result.title}
-                subtitle={<span>{result.year}</span>}
+                subtitle={<span>{result.releaseYear}</span>}
               />
             </Link>
           </ImageListItem>
