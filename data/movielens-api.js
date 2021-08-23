@@ -1,7 +1,10 @@
 const movielens = require("movielens");
 const validators = require("../utils/validators");
+const csv = require("csvtojson");
 
 let cookie;
+
+let moviesMap;
 
 async function movieLensLogin() {
   cookie = await movielens.login(
@@ -16,6 +19,17 @@ async function getCookie() {
     await movieLensLogin();
   }
   return cookie;
+}
+
+async function getMoviesMap() {
+  if (!moviesMap) {
+    moviesMap = {};
+    const links = await csv().fromFile("utils/links.csv");
+    for (let row of links) {
+      moviesMap[row.tmdbId] = row.movieId;
+    }
+  }
+  return moviesMap;
 }
 
 module.exports = {
@@ -46,6 +60,10 @@ module.exports = {
         throw e;
       }
     }
+  },
+
+  async getMovieLensId(tmdbId) {
+    return (await getMoviesMap())[tmdbId];
   },
 
   async getSimilarMovies(movielensId, limit = -1) {

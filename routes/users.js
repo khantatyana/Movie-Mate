@@ -57,7 +57,12 @@ router.get("/recommendations", async (req, res) => {
           await worker.terminate();
         });
 
-        await redisClient.setAsync(redisStatusKey, "COMPUTING");
+        await redisClient.setAsync(
+          redisStatusKey,
+          "COMPUTING",
+          "EX",
+          5 * 60 * 1000
+        ); // Computing timeout 5 min
       }
 
       result.status = "COMPUTING";
@@ -314,6 +319,5 @@ async function invalidateRecommendation(userId) {
   const redisStatusKey = `users:${userId}:recommendations:status`;
   await redisClient.setAsync(redisStatusKey, "OUTDATED");
 }
-
 
 module.exports = router;
