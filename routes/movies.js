@@ -16,7 +16,12 @@ router.get("/explore", async (req, res) => {
 
     const result = await data.movielens.queryMovies(req.query);
 
-    await redisClient.setAsync(redisKey, JSON.stringify(result), "EX", 60 * 60); // one hour
+    await redisClient.setAsync(
+      redisKey,
+      JSON.stringify(result),
+      "EX",
+      60 * 60 * 1000
+    ); // one hour
 
     res.json(result);
   } catch (e) {

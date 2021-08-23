@@ -1,9 +1,10 @@
 const movielens = require("movielens");
 const validators = require("../utils/validators");
-const fs = require("fs");
-const csv = require("csv-parser");
+const csv = require("csvtojson");
 
 let cookie;
+
+let moviesMap;
 
 async function movieLensLogin() {
   cookie = await movielens.login(
@@ -18,6 +19,17 @@ async function getCookie() {
     await movieLensLogin();
   }
   return cookie;
+}
+
+async function getMoviesMap() {
+  if (!moviesMap) {
+    moviesMap = {};
+    const links = await csv().fromFile("utils/links.csv");
+    for (let row of links) {
+      moviesMap[row.tmdbId] = row.movieId;
+    }
+  }
+  return moviesMap;
 }
 
 module.exports = {
@@ -50,17 +62,8 @@ module.exports = {
     }
   },
 
-  async getMovieLensId(id) {
-    let movId = 20;
-    fs.createReadStream("../utils/links.csv")
-      .pipe(csv())
-      .on("data", (data) => {
-        if (data.tmdbId == id) {
-          movId = data.movieId;
-          return;
-        }
-      });
-    return movId;
+  async getMovieLensId(tmdbId) {
+    return (await getMoviesMap())[tmdbId];
   },
 
   async getSimilarMovies(movielensId, limit = -1) {

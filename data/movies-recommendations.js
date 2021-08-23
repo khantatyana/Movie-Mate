@@ -1,10 +1,10 @@
 const { parentPort, workerData } = require("worker_threads");
 const { likedMovies } = workerData;
 const recommender = require("movie-recommender");
-const { movies } = require(".");
 const movielens = require("../data/movielens-api");
 
 async function getRecommendations() {
+  const numberOfRec = 20;
   let recommendations = [];
   try {
     list = [];
@@ -14,26 +14,35 @@ async function getRecommendations() {
       ids.push(item.id);
     }
 
-    let recs = await recommender.getRecommendations(list, 20);
-    console.log(recs);
+    let recs = await recommender.getRecommendations(list, numberOfRec * 2);
+    console.log("Recommendation from Recommender module");
 
     recommendations = [];
     for (let rec of recs) {
       if (typeof rec !== "undefined" || res !== null) {
         let id = await movielens.getMovieLensId(Number.parseInt(rec.movie.id));
-        let m = {};
         if (id) {
-          let m = await movies.getMovieById(Number.parseInt(rec.movie.id));
-          recommendations.push(m);
-        } else {
-          m = await movielens.getSimilarMovies(20, 1);
-          recommendations.concat(m);
+          let m = await movielens.getMovieById(Number.parseInt(rec.movie.id));
+          if (m && m.movieDetails && m.movieDetails.movie) {
+            recommendations.push(m.movieDetails.movie);
+            if (recommendations.length >= numberOfRec) {
+              break;
+            }
+          }
         }
       }
     }
   } catch (e) {
-    let m = await movielens.getSimilarMovies(ids[0], 20);
-    recommendations = m;
+    console.log("Recommendation from Similarity API: " + e);
+    const recPerMovie =
+      numberOfRec > ids.length ? Math.ceil(numberOfRec / ids.length) : 1;
+    for (let mId of ids) {
+      let m = await movielens.getSimilarMovies(mId, recPerMovie);
+      recommendations = recommendations.concat(m);
+    }
+    if (recommendations.length > 0) {
+      recommendations.slice(0, numberOfRec);
+    }
   }
   parentPort.postMessage(recommendations);
 }
