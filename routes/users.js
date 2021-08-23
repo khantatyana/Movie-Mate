@@ -31,7 +31,7 @@ router.get("/recommendations", async (req, res) => {
         console.log(`Starting recommendations for user ${req.user.name}.`);
         likedTitles = req.user.likedMovies.map((m) => {
           return {
-            id: m.id,
+            id: m._id,
             title: m.title,
           };
         });
@@ -46,12 +46,14 @@ router.get("/recommendations", async (req, res) => {
         worker.on("error", async (err) => {
           await redisClient.setAsync(redisStatusKey, "OUTDATED");
           console.log(`Error from recommendation algorithm: ${err}`);
+          await worker.terminate();
         });
 
         worker.on("message", async (msg) => {
           console.log(`Recommendations for user ${req.user.name} is done.`);
           await redisClient.setAsync(redisResultKey, JSON.stringify(msg));
           await redisClient.setAsync(redisStatusKey, "READY");
+          await worker.terminate();
         });
 
         await redisClient.setAsync(redisStatusKey, "COMPUTING");

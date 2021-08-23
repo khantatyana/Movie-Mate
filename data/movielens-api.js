@@ -11,16 +11,21 @@ async function movieLensLogin() {
   console.log(`Logged in to Movielens successfully. Cookie: ${cookie}`);
 }
 
-movieLensLogin();
+async function getCookie() {
+  if (!cookie) {
+    await movieLensLogin();
+  }
+  return cookie;
+}
 
 module.exports = {
   async queryMovies(query) {
     if (!query) return [];
-    return (await movielens.explore(cookie, query)).data;
+    return (await movielens.explore(await getCookie(), query)).data;
   },
 
   async getGenres() {
-    const response = await movielens.getGenres(cookie);
+    const response = await movielens.getGenres(await getCookie());
     return Object.keys(response.data.numMoviesPerGenre);
   },
 
@@ -29,7 +34,10 @@ module.exports = {
       throw new "Please provide a valid MovieLens ID"();
 
     try {
-      const movie = await movielens.get(cookie, `movies/${movielensId}`);
+      const movie = await movielens.get(
+        await getCookie(),
+        `movies/${movielensId}`
+      );
       return movie.data;
     } catch (e) {
       if (e.response.status >= 400 && e.response.status < 500) {
@@ -44,10 +52,13 @@ module.exports = {
     if (!validators.isPositiveNumber(movielensId))
       throw new "Please provide a valid MovieLens ID"();
 
-    let { data } = await movielens.get(cookie, `movies/${movielensId}/similar`);
+    let { data } = await movielens.get(
+      await getCookie(),
+      `movies/${movielensId}/similar`
+    );
     let similarMovies = [];
     if (data && data.similarMovies && data.similarMovies.searchResults) {
-      similarMovies = data.similarMovies.searchResults;
+      similarMovies = data.similarMovies.searchResults.map((m) => m.movie);
       if (limit > 0 && similarMovies.length > limit) {
         similarMovies = similarMovies.slice(0, limit);
       }

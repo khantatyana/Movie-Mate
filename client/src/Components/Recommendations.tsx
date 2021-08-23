@@ -1,161 +1,79 @@
-import React, { useState, useEffect } from "react";
-// import axios from "axios";
+import { LinearProgress } from "@material-ui/core";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { moviesService } from "../movies.service";
-import recs from "../../../data/movies-recommendations";
-import {
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Grid,
-  Typography,
-  makeStyles,
-} from "@material-ui/core";
+import ImageList from "@material-ui/core/ImageList";
+import ImageListItem from "@material-ui/core/ImageListItem";
+import ImageListItemBar from "@material-ui/core/ImageListItemBar";
+import { Movie } from "../models";
 
-const Recommendations = (props) => {
-  const useStyles = makeStyles({
-    card: {
-      maxWidth: 250,
-      height: "auto",
-      marginLeft: "auto",
-      marginRight: "auto",
-      borderRadius: 5,
-      border: "1px solid #1e8678",
-      boxShadow: "0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);",
-    },
-    titleHead: {
-      borderBottom: "1px solid #1e8678",
-      fontWeight: "bold",
-    },
-    grid: {
-      flexGrow: 1,
-      flexDirection: "row",
-    },
-    media: {
-      height: "100%",
-      width: "100%",
-    },
-    button: {
-      color: "#1e8678",
-      fontWeight: "bold",
-      fontSize: 12,
-    },
-  });
+const useInterval = (callback, delay) => {
+  const savedCallback = React.useRef();
 
-  const classes = useStyles();
-  //check if it is still loading in all of the movies
-  const [loading, setLoading] = useState(true);
-  //set the movie data
-  const [MovieData, setMovieData] = useState(undefined);
-  let card = null;
+  React.useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        //make the call to the DB or API to grab the data
-        //TODO
-        const data = await recs.getRecommendations();
-        setMovieData(data);
-        console.log(data);
-        setLoading(false);
-        console.log(MovieData);
-      } catch (e) {
-        console.log(e);
-      }
+  React.useEffect(() => {
+    function tick() {
+      (savedCallback as any).current();
     }
-    fetchData();
-  }, []);
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+};
 
-  //method to generate a new card
-  const buildCard = (movie) => {
-    return (
-      <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={movie._id}>
-        <Card className={classes.card} variant="outlined">
-          <CardActionArea>
-            <Link to={`/movies/${movie._id}`}>
-              <CardMedia
-                className={classes.media}
-                component="img"
-                image={movie.image}
-                title="Movie image"
-              />
+export const Recommendations = () => {
+  const [status, setStatus] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
+
+  useInterval(() => {
+    (async () => {
+      if (status === "READY") return;
+      setStatus(null);
+      const response = await moviesService.getRecommendations();
+      setStatus(response.status);
+      setRecommendations(response.recommendations || []);
+    })();
+  }, 5000);
+
+  return (
+    <div>
+      <div>
+        {!status || status === "COMPUTING" ? (
+          <div>
+            <LinearProgress color="secondary" />
+            <p>Generating recommendations...</p>
+          </div>
+        ) : (
+          <div className="progress-placeholder"></div>
+        )}
+      </div>
+
+      <ImageList rowHeight={400} cols={6}>
+        {recommendations.map((result: Movie) => (
+          <ImageListItem key={result.movieId}>
+            <Link to={"movies/" + result.movieId}>
               <img
                 src={
-                  movie.posterUrl
-                    ? "https://image.tmdb.org/t/p/w500/" + movie.posterUrl
+                  result.posterPath
+                    ? "https://image.tmdb.org/t/p/w500/" + result.posterPath
                     : "/no-poster.jpg"
                 }
-                alt={movie.title}
+                alt={result.title}
               />
-              <CardContent>
-                <Typography
-                  className={classes.titleHead}
-                  gutterBottom
-                  variant="h6"
-                  component="h2"
-                >
-                  {movie.title}
-                </Typography>
-                <Typography variant="body2" color="textSecondary" component="p">
-                  {movie.description
-                    ? movie.description
-                    : "No description available"}
-                  <br></br>
-                  <span>More Info</span>
-                </Typography>
-              </CardContent>
+              <ImageListItemBar
+                title={result.title}
+                subtitle={<span>{result.releaseYear}</span>}
+              />
             </Link>
-          </CardActionArea>
-        </Card>
-      </Grid>
-    );
-  };
-
-  //set the card variable
-  if (MovieData) {
-    card =
-      MovieData &&
-      MovieData.map((movie) => {
-        return buildCard(movie);
-      });
-  }
-
-  if (loading) {
-    // if (loading && MovieData == undefined) {
-    //   return (
-    //     <div>
-    //       <h2>No Recommendations yet....</h2>
-    //       <p>Like, Dislike or Add to Wishlist to improve the recommendations</p>
-    //     </div>
-    //   );
-    // } else {
-    return (
-      <div>
-        <h2>Loading....</h2>
-      </div>
-    );
-    // }
-  } else {
-    //check that the moviedata is greater than 1
-    if (MovieData === null || MovieData.length === 0) {
-      return (
-        <div>
-          <h2>No Recommendations yet....</h2>
-          <p>Like, Dislike or Add to Wishlist to improve the recommendations</p>
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <Grid container className={classes.grid} spacing={5}>
-            {card}
-          </Grid>
-          <br />
-        </div>
-      );
-    }
-  }
+          </ImageListItem>
+        ))}
+      </ImageList>
+    </div>
+  );
 };
 
 export default Recommendations;
