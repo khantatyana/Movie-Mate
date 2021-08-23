@@ -111,6 +111,7 @@ export const Movies = (props) => {
       </div>
 
       <TextField
+        id="input-field"
         label="Search Movies"
         variant="outlined"
         onChange={search}
