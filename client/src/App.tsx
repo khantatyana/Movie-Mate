@@ -148,7 +148,7 @@ function App() {
                     color="inherit"
                   >
                     {loggedUser && loggedUser.photoURL ? (
-                      <Avatar alt={loggedUser.name} src={loggedUser.photoURL} />
+                      <Avatar alt="avatar" src={loggedUser.photoURL} />
                     ) : (
                       <AccountCircle />
                     )}

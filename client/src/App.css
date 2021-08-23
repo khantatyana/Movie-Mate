@@ -75,3 +75,6 @@ h1.MuiTypography-root.MuiTypography-h1 {
   /* line-height: 1.6; */
   letter-spacing: 0.0075em;
 }
+h1.MuiTypography-root.MuiTypography-h1 a {
+  color: white;
+}
