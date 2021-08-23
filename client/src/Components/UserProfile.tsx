@@ -5,11 +5,11 @@ import { moviesService } from "../movies.service";
 import firebase from "firebase/app";
 import EditFormModal from "./EditFormModal";
 import HighlightOffIcon from "@material-ui/icons/HighlightOff";
-import TrendingFlatIcon from "@material-ui/icons/TrendingFlat";
+import Pagination from "@material-ui/lab/Pagination";
 import {
   makeStyles,
-  ImageListItem,
   ImageList,
+  ImageListItem,
   ImageListItemBar,
   Avatar,
   Card,
@@ -59,9 +59,12 @@ const useStyles = makeStyles((theme) => ({
 export const UserProfile = (props) => {
   const classes = useStyles();
   const [userData, setUserData] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(undefined);
+  const [currentWishPage, setCurrentWishPage] = React.useState(1);
+  const [currentLikePage, setCurrentLikePage] = React.useState(1);
+  const [itemsPerPage] = React.useState(6);
   const [currentUser] = React.useState(firebase.auth().currentUser);
+  const [loading, setLoading] = React.useState(true);
   let wishList = null;
   let favorites = null;
 
@@ -83,18 +86,27 @@ export const UserProfile = (props) => {
     try {
       if (isWish) {
         const response = await moviesService.deleteWishlist(id);
-        console.log(response);
+        setUserData(response);
       } else {
         const response = await moviesService.deleteLike(id);
-        console.log(response);
+        setUserData(response);
       }
     } catch (e) {
+      setError(e.messages);
       console.log(e.messages);
     }
   };
 
-  const history = () => {
-    props.history.push("/profile");
+  const changeWishPage = (event, value) => {
+    setCurrentWishPage(value);
+  };
+  const changeLikePage = (event, value) => {
+    setCurrentLikePage(value);
+  };
+
+  const updateUser = (userData) => {
+    setUserData(userData);
+    console.log(userData);
   };
 
   const buildListItem = (result) => {
@@ -113,14 +125,17 @@ export const UserProfile = (props) => {
             title={result.title}
             subtitle={<span>{result.year}</span>}
             actionIcon={
-              <IconButton
-                onClick={async (e) => {
-                  e.preventDefault();
-                  await handleDelete(result._id);
-                }}
-              >
-                <HighlightOffIcon color="primary" className={classes.title} />
-              </IconButton>
+              <label htmlFor="remove">
+                <IconButton
+                  name="remove"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    await handleDelete(result._id);
+                  }}
+                >
+                  <HighlightOffIcon color="primary" className={classes.title} />
+                </IconButton>
+              </label>
             }
           />
         </Link>
@@ -131,17 +146,27 @@ export const UserProfile = (props) => {
   if (userData) {
     wishList =
       userData &&
-      userData.wishMovies.map((item) => {
-        return buildListItem(item);
-      });
+      userData.wishMovies
+        .slice(
+          (currentWishPage - 1) * itemsPerPage,
+          currentWishPage * itemsPerPage
+        )
+        .map((item) => {
+          return buildListItem(item);
+        });
   }
 
   if (userData) {
     favorites =
       userData &&
-      userData.likedMovies.map((item) => {
-        return buildListItem(item);
-      });
+      userData.likedMovies
+        .slice(
+          (currentLikePage - 1) * itemsPerPage,
+          currentLikePage * itemsPerPage
+        )
+        .map((item) => {
+          return buildListItem(item);
+        });
   }
 
   if (loading) {
@@ -167,39 +192,49 @@ export const UserProfile = (props) => {
             <Card className={classes.card}>
               <Avatar
                 alt="Profile"
-                src={currentUser.photoURL}
+                src={userData.pictureUrl}
                 className={classes.large}
               />
               <CardContent>
                 <Typography variant="h5" component="h2">
-                  {currentUser.displayName}
+                  {userData.name}
                 </Typography>
                 <Typography className={classes.pos} color="textSecondary">
-                  {currentUser.email}
+                  {userData.email}
                 </Typography>
               </CardContent>
             </Card>
             <EditFormModal
-              currentUser={currentUser}
-              history={() => {
-                history();
+              currentUser={userData}
+              updateUser={(userData) => {
+                updateUser(userData);
               }}
             />
           </div>
           <h2> My Favorites </h2>
-          <div className={classes.root}>
-            <ImageList className={classes.imageList} rowHeight={350} cols={4.5}>
+          <div>
+            <ImageList rowHeight={400} cols={6}>
               {favorites}
             </ImageList>
+            <Pagination
+              id="likePager"
+              page={currentLikePage}
+              count={Math.ceil(userData.likedMovies.length / 6)}
+              onChange={changeLikePage}
+            />
           </div>
-          <TrendingFlatIcon />
           <h2> My Wish List </h2>
-          <div className={classes.root}>
-            <ImageList className={classes.imageList} rowHeight={350} cols={4.5}>
+          <div>
+            <ImageList rowHeight={400} cols={6}>
               {wishList}
             </ImageList>
+            <Pagination
+              id="wishPager"
+              page={currentWishPage}
+              count={Math.ceil(userData.wishMovies.length / 6)}
+              onChange={changeWishPage}
+            />
           </div>
-          <TrendingFlatIcon />
         </div>
       );
     }

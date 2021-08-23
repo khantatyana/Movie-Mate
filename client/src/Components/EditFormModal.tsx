@@ -43,20 +43,19 @@ const EditFormModal = (props) => {
   const [currentUser] = React.useState(props.currentUser);
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
-  const [newName, setNewName] = React.useState(props.currentUser.displayName);
+  const [newName, setNewName] = React.useState(props.currentUser.name);
   const [newEmail, setNewEmail] = React.useState(props.currentUser.email);
-  const [newPhotoURL, setNewPhotoURL] = React.useState(
-    props.currentUser.photoURL
-  );
+  const [newPhoto, setNewPhoto] = React.useState(null);
+  const [newPhotoName, setNewPhotoName] = React.useState(null);
   const [updateError, setUpdateError] = React.useState(undefined);
 
   const handleOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = () => {
+  const handleClose = (response) => {
     setOpen(false);
-    props.history();
+    props.updateUser(response);
   };
 
   const handleChangedName = (event) => {
@@ -77,24 +76,27 @@ const EditFormModal = (props) => {
     }
   };
 
-  const handleChangedPhotoURL = (event) => {
-    setNewPhotoURL(event.target.value);
-    if (event.target.value === "") {
-      setUpdateError("url must be included");
-    } else {
-      setUpdateError(undefined);
-    }
+  const handleChangedPhoto = (event) => {
+    setNewPhoto(event.target.files[0]);
+    setNewPhotoName(event.target.files[0].name);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
+      const fileData = new FormData();
+      fileData.append("file", newPhoto);
+      const { uploadedName } = (
+        await moviesService.uploadProfilePhoto(fileData)
+      ).data;
       await moviesService.updateUser(
-        currentUser.uid,
+        currentUser._id,
         newName,
         newEmail,
-        newPhotoURL
+        uploadedName
       );
-      handleClose();
+      const response = await moviesService.getUserById(currentUser._id);
+      handleClose(response);
     } catch (error) {
       setUpdateError(error.messages);
     }
@@ -128,15 +130,7 @@ const EditFormModal = (props) => {
             shrink: true,
           }}
         />
-        <TextField
-          label="Photo URL"
-          variant="outlined"
-          value={newPhotoURL}
-          onChange={handleChangedPhotoURL}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
+        <input type="file" name="file" onChange={handleChangedPhoto} />
         {errorDiv}
         <Button variant="contained" color="primary" onClick={handleSubmit}>
           Submit
