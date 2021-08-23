@@ -78,7 +78,7 @@ class MoviesService {
     let data = {
       name: newName,
       email: newEmail,
-      photoUrl: Date.now() + "-" + newPhotoURL,
+      pictureUrl: newPhotoURL,
     };
 
     await axios.put(url, data, {
@@ -97,7 +97,6 @@ class MoviesService {
 
   async uploadProfilePhoto(newPhoto) {
     const token = await this.getToken();
-    console.log(newPhoto);
     await axios.post(`${BASE_URL}/users/upload`, newPhoto, {
       headers: {
         "Content-Type": "application/json",

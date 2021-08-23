@@ -189,10 +189,7 @@ export const UserProfile = (props) => {
             <Card className={classes.card}>
               <Avatar
                 alt="Profile"
-                src={
-                  window.location.origin +
-                  `/client/public/UserProfileImgs${userData.photoUrl}`
-                }
+                src={`/UserProfileImgs/${userData.pictureUrl}`}
                 className={classes.large}
               />
               <CardContent>

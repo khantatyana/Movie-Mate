@@ -58,18 +58,16 @@ router.put("/:userId", async (req, res, next) => {
     return;
   }
 
-  let updateUrl;
-  if (pictureUrl !== user.pictureUrl) {
-    updateUrl = pictureUrl;
-  } else {
-    updateUrl = user.pictureUrl;
+  if (pictureUrl === null) {
+    pictureUrl = user.pictureUrl;
   }
 
+  console.log(pictureUrl);
   const updatedUser = await data.users.updateUser(
     userId,
     name,
     email,
-    updateUrl
+    pictureUrl
   );
   res.json(updatedUser);
 });
@@ -213,7 +211,7 @@ var storage = multer.diskStorage({
     cb(null, "client/public/UserProfileImgs");
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
+    cb(null, file.originalname);
   },
 });
 

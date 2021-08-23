@@ -81,7 +81,8 @@ const EditFormModal = (props) => {
     setNewPhotoName(event.target.files[0].name);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       const fileData = new FormData();
       fileData.append("file", newPhoto);
