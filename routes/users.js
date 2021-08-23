@@ -4,6 +4,7 @@ const router = express.Router();
 const data = require("../data");
 const validators = require("../utils/validators");
 const routesUtils = require("./routes-utils");
+var multer = require("multer");
 const redisClient = require("../config/redisConnection");
 
 const { Worker } = require("worker_threads");
@@ -86,7 +87,7 @@ router.post("/", async (req, res, next) => {
 });
 
 router.put("/:userId", async (req, res, next) => {
-  const { name, email } = req.body;
+  const { name, email, pictureUrl } = req.body;
   const userId = req.params.userId;
 
   if (
@@ -119,9 +120,11 @@ router.put("/:userId", async (req, res, next) => {
     return;
   }
 
-  // TODO accept picture upload and generate URL for it
-  let pictureUrl = "";
+  if (pictureUrl === null) {
+    pictureUrl = user.pictureUrl;
+  }
 
+  console.log(pictureUrl);
   const updatedUser = await data.users.updateUser(
     userId,
     name,
@@ -283,9 +286,34 @@ router.delete("/:userId/:movieList/:movieId", async (req, res, next) => {
   res.json(result);
 });
 
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "client/public/UserProfileImgs");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+var upload = multer({ storage: storage }).single("file");
+
+router.post("/upload", async function (req, res) {
+  await upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      console.log(err);
+      return res.status(500).json(err);
+    } else if (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+    return res.json({ uploadedName: `/UserProfileImgs/${req.file.filename}` });
+  });
+});
+
 async function invalidateRecommendation(userId) {
   const redisStatusKey = `users:${userId}:recommendations:status`;
   await redisClient.setAsync(redisStatusKey, "OUTDATED");
 }
+
 
 module.exports = router;

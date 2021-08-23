@@ -109,29 +109,31 @@ function App() {
                 ></img>
               </Link>
 
-              <Typography variant="h6">
+              <Typography variant="h1">
                 <Link to="/movies">Movie Mate</Link>
               </Typography>
             </Box>
 
             <Box display="flex" flexDirection="row">
               {/* Nav pages  */}
-              <Tabs value={false}>
-                <Tab
-                  label="Explore Movies"
-                  component={NavLink}
-                  exact
-                  to="/movies"
-                  activeClassName={classes.activeTab}
-                />
-                <Tab
-                  label="My Recommendations"
-                  component={NavLink}
-                  exact
-                  to="/recommendations"
-                  activeClassName={classes.activeTab}
-                />
-              </Tabs>
+              {authenticated ? (
+                <Tabs value={false}>
+                  <Tab
+                    label="Explore Movies"
+                    component={NavLink}
+                    exact
+                    to="/movies"
+                    activeClassName={classes.activeTab}
+                  />
+                  <Tab
+                    label="My Recommendations"
+                    component={NavLink}
+                    exact
+                    to="/recommendations"
+                    activeClassName={classes.activeTab}
+                  />
+                </Tabs>
+              ) : null}
             </Box>
 
             <Box display="flex" flexDirection="row">
@@ -146,7 +148,7 @@ function App() {
                     color="inherit"
                   >
                     {loggedUser && loggedUser.photoURL ? (
-                      <Avatar alt={loggedUser.name} src={loggedUser.photoURL} />
+                      <Avatar alt="avatar" src={loggedUser.photoURL} />
                     ) : (
                       <AccountCircle />
                     )}
