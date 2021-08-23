@@ -19,12 +19,14 @@ code {
   justify-content: space-between;
 }
 
-.MuiTypography-h6 a {
+.MuiTypography-h1 a {
   color: white;
   text-decoration: none;
+  font-size: 30px;
+  font-weight: bold;
 }
 
-.MuiTypography-h6 a:hover {
+.MuiTypography-h1 a:hover {
   text-decoration: underline;
 }
 
