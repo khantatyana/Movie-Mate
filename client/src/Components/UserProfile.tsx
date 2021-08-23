@@ -125,14 +125,17 @@ export const UserProfile = (props) => {
             title={result.title}
             subtitle={<span>{result.year}</span>}
             actionIcon={
-              <IconButton
-                onClick={async (e) => {
-                  e.preventDefault();
-                  await handleDelete(result._id);
-                }}
-              >
-                <HighlightOffIcon color="primary" className={classes.title} />
-              </IconButton>
+              <label htmlFor="remove">
+                <IconButton
+                  name="remove"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    await handleDelete(result._id);
+                  }}
+                >
+                  <HighlightOffIcon color="primary" className={classes.title} />
+                </IconButton>
+              </label>
             }
           />
         </Link>
