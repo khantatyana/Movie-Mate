@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { moviesService } from "../movies.service";
 import StarRatings from "react-star-ratings";
+import DeleteIcon from "@material-ui/icons/Delete";
+import firebase from "firebase/app";
 
 import {
   Grid,
   makeStyles,
+  Avatar,
   Typography,
   Paper,
   ButtonGroup,
@@ -44,7 +47,9 @@ const useStyles = makeStyles((theme) => ({
     background: "#ffd000",
   },
 }));
-
+async function deleteComment(movieId, commentId) {
+  await moviesService.deleteComment(movieId, commentId);
+}
 async function addToLike(id) {
   await moviesService.addLike(id);
 }
@@ -64,8 +69,35 @@ async function deleteFromWish(id) {
   await moviesService.deleteWishlist(id);
 }
 
+function timeDifference(previous) {
+  let current = Date.now();
+
+  var msPerMinute = 60 * 1000;
+  var msPerHour = msPerMinute * 60;
+  var msPerDay = msPerHour * 24;
+  var msPerMonth = msPerDay * 30;
+  var msPerYear = msPerDay * 365;
+
+  var elapsed = current - Date.parse(previous.valueOf());
+
+  if (elapsed < msPerMinute) {
+    return Math.round(elapsed / 1000) + " seconds ago";
+  } else if (elapsed < msPerHour) {
+    return Math.round(elapsed / msPerMinute) + " minutes ago";
+  } else if (elapsed < msPerDay) {
+    return Math.round(elapsed / msPerHour) + " hours ago";
+  } else if (elapsed < msPerMonth) {
+    return "approximately " + Math.round(elapsed / msPerDay) + " days ago";
+  } else if (elapsed < msPerYear) {
+    return "approximately " + Math.round(elapsed / msPerMonth) + " months ago";
+  } else {
+    return "approximately " + Math.round(elapsed / msPerYear) + " years ago";
+  }
+}
+
 export const Movie = (props) => {
   const [movieData, setMovieData] = useState(undefined);
+  const [currentUser] = React.useState(firebase.auth().currentUser);
   const [likeButtonClicked, setLikeButtonClicked] = useState(false);
   const [dislikeButtonClicked, setDislikeButtonClicked] = useState(false);
   const [wishButtonClicked, setwishButtonClicked] = useState(false);
@@ -108,17 +140,13 @@ export const Movie = (props) => {
         const response = await moviesService.getMovieByID(
           props.match.params.movieId
         );
-        console.log(response);
+        //console.log(response);
         setMovieData(response);
         setLoading(false);
         setCommentAdded(false);
         setLikeButtonClicked(response.userLiked);
         setDislikeButtonClicked(response.userDisliked);
         setwishButtonClicked(response.userWish);
-        console.log(likeButtonClicked);
-        console.log(dislikeButtonClicked);
-        console.log(wishButtonClicked);
-        console.log(movieData);
       } catch (e) {
         console.log(e);
       }
@@ -165,6 +193,15 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToLike(movieData.movieDetails.movieId);
+                    //check if they previously disliked the movie
+                    if (dislikeButtonClicked) {
+                      deleteFromDislike(movieData.movieDetails.movieId);
+                      setDislikeButtonClicked(false);
+                    }
+                    if (wishButtonClicked) {
+                      deleteFromWish(movieData.movieDetails.movieId);
+                      setwishButtonClicked(false);
+                    }
                     setLikeButtonClicked(true);
                   }}
                 >
@@ -187,6 +224,14 @@ export const Movie = (props) => {
                   onClick={() => {
                     addToWishlist(movieData.movieDetails.movieId);
                     setwishButtonClicked(true);
+                    if (dislikeButtonClicked) {
+                      deleteFromDislike(movieData.movieDetails.movieId);
+                      setDislikeButtonClicked(false);
+                    }
+                    if (likeButtonClicked) {
+                      deleteFromLike(movieData.movieDetails.movieId);
+                      setLikeButtonClicked(false);
+                    }
                   }}
                 >
                   Add to Wishlist
@@ -207,6 +252,14 @@ export const Movie = (props) => {
                   className={btnClass}
                   onClick={() => {
                     addToDislike(movieData.movieDetails.movieId);
+                    if (likeButtonClicked) {
+                      deleteFromLike(movieData.movieDetails.movieId);
+                      setLikeButtonClicked(false);
+                    }
+                    if (wishButtonClicked) {
+                      deleteFromWish(movieData.movieDetails.movieId);
+                      setwishButtonClicked(false);
+                    }
                     setDislikeButtonClicked(true);
                   }}
                 >
@@ -289,8 +342,48 @@ export const Movie = (props) => {
                   movieData.comments.map(function (comment, index) {
                     return (
                       <div>
-                        <Paper className={classes.paper} key={index}>
-                          {comment.comment}
+                        <Paper style={{ padding: "40px 20px", marginTop: 10 }}>
+                          <Grid container wrap="nowrap" spacing={2}>
+                            <Grid item>
+                              <Avatar
+                                alt="UserIcon"
+                                src={comment.userPhotoURL}
+                              />
+                            </Grid>
+                            <Grid item xs zeroMinWidth>
+                              <h4 style={{ margin: 0, textAlign: "left" }}>
+                                {comment.userName}
+                              </h4>
+                              <p style={{ textAlign: "left" }}>
+                                "{comment.comment}"
+                              </p>
+                              <p style={{ textAlign: "left", color: "gray" }}>
+                                Posted {timeDifference(comment.createDate)}
+                              </p>
+                            </Grid>
+                            {comment.userId === currentUser.uid ? (
+                              <Grid
+                                item
+                                xs
+                                container
+                                direction="column"
+                                alignItems="flex-end"
+                                justify="flex-start"
+                              >
+                                <Button
+                                  onClick={() => {
+                                    deleteComment(
+                                      movieData.movieDetails.movieId,
+                                      comment._id
+                                    );
+                                    setCommentAdded(true);
+                                  }}
+                                >
+                                  <DeleteIcon></DeleteIcon>
+                                </Button>
+                              </Grid>
+                            ) : null}
+                          </Grid>
                         </Paper>
                         <br></br>
                       </div>

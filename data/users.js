@@ -11,22 +11,22 @@ async function getUserById(userId) {
   return await models.User.findById(userId).exec();
 }
 
-async function getOrCreate(userId, name, email) {
+async function getOrCreate(userId, name, email, pictureUrl) {
   let user = await getUserById(userId);
   if (!user) {
-    user = await createUser(userId, name, email);
+    user = await createUser(userId, name, email, pictureUrl);
   }
   return user;
 }
 
-async function createUser(userId, name, email) {
+async function createUser(userId, name, email, pictureUrl) {
   if (!validators.isNonEmptyString(userId))
     throw "Please provide a valid user ID";
   if (!validators.isNonEmptyString(name)) throw "User name must be provided";
   if (!validators.isValidEmail(email))
     throw "Please provide a valid email address";
 
-  const newUser = new models.User({ _id: userId, name, email });
+  const newUser = new models.User({ _id: userId, name, email, pictureUrl });
   const createdUser = await saveSafely(newUser);
   return createdUser;
 }
@@ -51,6 +51,7 @@ async function updateUser(id, name, email, pictureUrl) {
     for (comment of movie.comments) {
       if (comment.userId == id) {
         comment.userName = name;
+        comment.userPhotoURL = pictureUrl;
       }
     }
     await saveSafely(movie);

@@ -5,7 +5,69 @@ const data = require("../data");
 const validators = require("../utils/validators");
 const routesUtils = require("./routes-utils");
 var multer = require("multer");
-const { app } = require("firebase-admin");
+const redisClient = require("../config/redisConnection");
+
+const { Worker } = require("worker_threads");
+
+router.get("/recommendations", async (req, res) => {
+  try {
+    if (!routesUtils.authenticateUser(req, res)) return;
+
+    const redisStatusKey = `users:${req.user.id}:recommendations:status`;
+    const redisResultKey = `users:${req.user.id}:recommendations:result`;
+    const result = {};
+    if (await redisClient.existsAsync(redisResultKey)) {
+      // We return the cached version if it does exist
+      result.recommendations = JSON.parse(
+        await redisClient.getAsync(redisResultKey)
+      );
+    }
+
+    const status = await redisClient.getAsync(redisStatusKey);
+    if (status && status === "READY") {
+      result.status = "READY";
+    } else {
+      if (status !== "COMPUTING") {
+        // We will need to compute recommendations
+        console.log(`Starting recommendations for user ${req.user.name}.`);
+        likedTitles = req.user.likedMovies.map((m) => {
+          return {
+            id: m._id,
+            title: m.title,
+          };
+        });
+        const worker = new Worker(
+          `${__dirname}/../data/movies-recommendations.js`,
+          {
+            workerData: { likedMovies: likedTitles },
+          }
+        );
+        console.log("Worker started!");
+
+        worker.on("error", async (err) => {
+          await redisClient.setAsync(redisStatusKey, "OUTDATED");
+          console.log(`Error from recommendation algorithm: ${err}`);
+          await worker.terminate();
+        });
+
+        worker.on("message", async (msg) => {
+          console.log(`Recommendations for user ${req.user.name} is done.`);
+          await redisClient.setAsync(redisResultKey, JSON.stringify(msg));
+          await redisClient.setAsync(redisStatusKey, "READY");
+          await worker.terminate();
+        });
+
+        await redisClient.setAsync(redisStatusKey, "COMPUTING");
+      }
+
+      result.status = "COMPUTING";
+    }
+    res.json(result);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json(e);
+  }
+});
 
 router.post("/", async (req, res, next) => {
   const { name, email } = req.body;
@@ -136,8 +198,16 @@ router.post("/:userId/:movieList/:movieId", async (req, res, next) => {
 
   // Remove movie from other lists
   if (movieList !== "likedMovies") {
-    await data.users.removeMovieFromUserList(userId, movieId, "likedMovies");
+    if (user.likedMovies.id(movieId)) {
+      await data.users.removeMovieFromUserList(userId, movieId, "likedMovies");
+      // Modifying likedMovies should invalidate cached recommendations
+      await invalidateRecommendation(userId);
+    }
+  } else {
+    // Modifying likedMovies should invalidate cached recommendations
+    await invalidateRecommendation(userId);
   }
+
   if (movieList !== "dislikedMovies") {
     await data.users.removeMovieFromUserList(userId, movieId, "dislikedMovies");
   }
@@ -150,6 +220,8 @@ router.post("/:userId/:movieList/:movieId", async (req, res, next) => {
     movieId,
     movieList
   );
+
+  await redisClient.delAsync(`movies:${movieId}`); // Invalidate movie cache
 
   res.json(result);
 });
@@ -203,6 +275,14 @@ router.delete("/:userId/:movieList/:movieId", async (req, res, next) => {
     movieId,
     movieList
   );
+
+  if (movieList === "likedMovies") {
+    // Modifying likedMovies should invalidate cached recommendations
+    await invalidateRecommendation(userId);
+  }
+
+  await redisClient.delAsync(`movies:${movieId}`); // Invalidate movie cache
+
   res.json(result);
 });
 
@@ -229,5 +309,11 @@ router.post("/upload", async function (req, res) {
     return res.json({ uploadedName: `/UserProfileImgs/${req.file.filename}` });
   });
 });
+
+async function invalidateRecommendation(userId) {
+  const redisStatusKey = `users:${userId}:recommendations:status`;
+  await redisClient.setAsync(redisStatusKey, "OUTDATED");
+}
+
 
 module.exports = router;
