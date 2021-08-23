@@ -226,7 +226,7 @@ router.post("/upload", async function (req, res) {
       console.log(err);
       return res.status(500).json(err);
     }
-    return res.status(200).send(req.file);
+    return res.json({ uploadedName: `/UserProfileImgs/${req.file.filename}` });
   });
 });
 

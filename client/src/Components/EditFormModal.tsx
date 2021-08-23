@@ -86,12 +86,14 @@ const EditFormModal = (props) => {
     try {
       const fileData = new FormData();
       fileData.append("file", newPhoto);
-      await moviesService.uploadProfilePhoto(fileData);
+      const { uploadedName } = (
+        await moviesService.uploadProfilePhoto(fileData)
+      ).data;
       await moviesService.updateUser(
         currentUser._id,
         newName,
         newEmail,
-        newPhotoName
+        uploadedName
       );
       const response = await moviesService.getUserById(currentUser._id);
       handleClose(response);

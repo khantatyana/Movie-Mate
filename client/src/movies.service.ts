@@ -92,12 +92,13 @@ class MoviesService {
     await user.updateEmail(newEmail);
     await user.updateProfile({
       displayName: newName,
+      photoURL: newPhotoURL,
     });
   }
 
   async uploadProfilePhoto(newPhoto) {
     const token = await this.getToken();
-    await axios.post(`${BASE_URL}/users/upload`, newPhoto, {
+    return await axios.post(`${BASE_URL}/users/upload`, newPhoto, {
       headers: {
         "Content-Type": "application/json",
         authorization: `Bearer ${token}`,
