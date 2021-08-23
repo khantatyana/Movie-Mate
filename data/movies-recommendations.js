@@ -20,13 +20,13 @@ async function getRecommendations() {
     recommendations = [];
     for (let rec of recs) {
       if (typeof rec !== "undefined" || res !== null) {
-        let m = await movies.getMovieById(Number.parseInt(rec.movie.id));
-        //let m = await movies.getMovieById(rec.movie.id);
-        if (m) {
-          //console.log(typeof rec.movie.id + ": " + rec.movie.id);
+        let id = await movielens.getMovieLensId(Number.parseInt(rec.movie.id));
+        let m = {};
+        if (id) {
+          let m = await movies.getMovieById(Number.parseInt(rec.movie.id));
           recommendations.push(m);
         } else {
-          m = await movielens.getSimilarMovies(rec.movie.id, 1);
+          m = await movielens.getSimilarMovies(20, 1);
           recommendations.concat(m);
         }
       }

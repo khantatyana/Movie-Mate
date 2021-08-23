@@ -29,9 +29,13 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "cors": "^2.8.5",
+    "csv": "^5.5.0",
+    "csv-parser": "^3.0.0",
+    "d3": "^7.0.1",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "firebase-admin": "^9.11.0",
+    "fs": "*",
     "husky": "^4.3.8",
     "if-env": "^1.0.4",
     "lodash": "^4.17.21",

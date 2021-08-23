@@ -1,5 +1,7 @@
 const movielens = require("movielens");
 const validators = require("../utils/validators");
+const fs = require("fs");
+const csv = require("csv-parser");
 
 let cookie;
 
@@ -46,6 +48,19 @@ module.exports = {
         throw e;
       }
     }
+  },
+
+  async getMovieLensId(id) {
+    let movId = 20;
+    fs.createReadStream("../utils/links.csv")
+      .pipe(csv())
+      .on("data", (data) => {
+        if (data.tmdbId == id) {
+          movId = data.movieId;
+          return;
+        }
+      });
+    return movId;
   },
 
   async getSimilarMovies(movielensId, limit = -1) {
