@@ -4,6 +4,8 @@ const router = express.Router();
 const data = require("../data");
 const validators = require("../utils/validators");
 const routesUtils = require("./routes-utils");
+var multer = require("multer");
+const { app } = require("firebase-admin");
 
 router.post("/", async (req, res, next) => {
   const { name, email } = req.body;
@@ -200,6 +202,30 @@ router.delete("/:userId/:movieList/:movieId", async (req, res, next) => {
     movieList
   );
   res.json(result);
+});
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "client/public/UserProfileImgs");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+var upload = multer({ storage: storage }).single("file");
+
+router.post("/upload", async function (req, res) {
+  await upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      console.log(err);
+      return res.status(500).json(err);
+    } else if (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+    return res.status(200).send(req.file);
+  });
 });
 
 module.exports = router;

@@ -106,6 +106,7 @@ export const UserProfile = (props) => {
 
   const updateUser = (userData) => {
     setUserData(userData);
+    console.log(userData);
   };
 
   const buildListItem = (result) => {
@@ -188,7 +189,10 @@ export const UserProfile = (props) => {
             <Card className={classes.card}>
               <Avatar
                 alt="Profile"
-                src={currentUser.photoURL}
+                src={
+                  window.location.origin +
+                  `/client/public/UserProfileImgs${userData.photoUrl}`
+                }
                 className={classes.large}
               />
               <CardContent>
@@ -201,7 +205,7 @@ export const UserProfile = (props) => {
               </CardContent>
             </Card>
             <EditFormModal
-              currentUser={currentUser}
+              currentUser={userData}
               updateUser={(userData) => {
                 updateUser(userData);
               }}
