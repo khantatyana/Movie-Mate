@@ -25,7 +25,7 @@ router.post("/", async (req, res, next) => {
 });
 
 router.put("/:userId", async (req, res, next) => {
-  const { name, email } = req.body;
+  const { name, email, pictureUrl } = req.body;
   const userId = req.params.userId;
 
   if (
@@ -58,14 +58,18 @@ router.put("/:userId", async (req, res, next) => {
     return;
   }
 
-  // TODO accept picture upload and generate URL for it
-  let pictureUrl = "";
+  let updateUrl;
+  if (pictureUrl !== user.pictureUrl) {
+    updateUrl = pictureUrl;
+  } else {
+    updateUrl = user.pictureUrl;
+  }
 
   const updatedUser = await data.users.updateUser(
     userId,
     name,
     email,
-    pictureUrl
+    updateUrl
   );
   res.json(updatedUser);
 });
