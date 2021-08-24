@@ -78,3 +78,7 @@ h1.MuiTypography-root.MuiTypography-h1 {
 h1.MuiTypography-root.MuiTypography-h1 a {
   color: white;
 }
+
+.MuiImageListItemBar-root {
+  background: rgba(0, 0, 0, 0.55) !important;
+}
