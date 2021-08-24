@@ -62,11 +62,13 @@ export const UserProfile = (props) => {
   const [error, setError] = React.useState(undefined);
   const [currentWishPage, setCurrentWishPage] = React.useState(1);
   const [currentLikePage, setCurrentLikePage] = React.useState(1);
+  const [currentDislikePage, setCurrentDislikedPage] = React.useState(1);
   const [itemsPerPage] = React.useState(6);
   const [currentUser] = React.useState(firebase.auth().currentUser);
   const [loading, setLoading] = React.useState(true);
   let wishList = null;
   let favorites = null;
+  let disliked = null;
 
   useEffect(() => {
     async function fetchData() {
@@ -82,13 +84,21 @@ export const UserProfile = (props) => {
   }, [currentUser]);
 
   const handleDelete = async (id) => {
-    let isWish = userData.wishMovies.filter((e) => e._id === id).length > 0;
+    let movieList =
+      userData.wishMovies.filter((e) => e._id === id).length > 0
+        ? "wishMovies"
+        : userData.likedMovies.filter((e) => e._id === id).length > 0
+        ? "likedMovies"
+        : "dislikedMovies";
     try {
-      if (isWish) {
+      if (movieList === "wishMovies") {
         const response = await moviesService.deleteWishlist(id);
         setUserData(response);
-      } else {
+      } else if (movieList === "likedMovies") {
         const response = await moviesService.deleteLike(id);
+        setUserData(response);
+      } else {
+        const response = await moviesService.deleteDislike(id);
         setUserData(response);
       }
     } catch (e) {
@@ -102,6 +112,9 @@ export const UserProfile = (props) => {
   };
   const changeLikePage = (event, value) => {
     setCurrentLikePage(value);
+  };
+  const changeDislikePage = (event, value) => {
+    setCurrentDislikedPage(value);
   };
 
   const updateUser = (userData) => {
@@ -169,6 +182,19 @@ export const UserProfile = (props) => {
         });
   }
 
+  if (userData) {
+    disliked =
+      userData &&
+      userData.dislikedMovies
+        .slice(
+          (currentDislikePage - 1) * itemsPerPage,
+          currentDislikePage * itemsPerPage
+        )
+        .map((item) => {
+          return buildListItem(item);
+        });
+  }
+
   if (loading) {
     return <div>Loading...</div>;
   } else {
@@ -213,9 +239,14 @@ export const UserProfile = (props) => {
           </div>
           <h2> My Favorites </h2>
           <div>
-            <ImageList rowHeight={400} cols={6}>
-              {favorites}
-            </ImageList>
+            {favorites && favorites.length > 0 ? (
+              <ImageList rowHeight={400} cols={6}>
+                {favorites}
+              </ImageList>
+            ) : (
+              <p>You don't have any favorite movies!</p>
+            )}
+
             <Pagination
               id="likePager"
               page={currentLikePage}
@@ -225,14 +256,35 @@ export const UserProfile = (props) => {
           </div>
           <h2> My Wish List </h2>
           <div>
-            <ImageList rowHeight={400} cols={6}>
-              {wishList}
-            </ImageList>
+            {wishList && wishList.length > 0 ? (
+              <ImageList rowHeight={400} cols={6}>
+                {wishList}
+              </ImageList>
+            ) : (
+              <p>You don't have any movies under your wish list!</p>
+            )}
             <Pagination
               id="wishPager"
               page={currentWishPage}
               count={Math.ceil(userData.wishMovies.length / 6)}
               onChange={changeWishPage}
+            />
+          </div>
+
+          <h2> My Dislike List </h2>
+          <div>
+            {disliked && disliked.length > 0 ? (
+              <ImageList rowHeight={400} cols={6}>
+                {disliked}
+              </ImageList>
+            ) : (
+              <p>You don't have any movies that you dislike!</p>
+            )}
+            <Pagination
+              id="dislikedPager"
+              page={currentDislikePage}
+              count={Math.ceil(userData.dislikedMovies.length / 6)}
+              onChange={changeDislikePage}
             />
           </div>
         </div>
