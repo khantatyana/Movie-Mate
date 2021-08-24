@@ -13,7 +13,9 @@ async function getRecommendations() {
     ids.push(item.id);
   }
   try {
-    throw "Use similarity measure on Heroku, comment this line out if you testing locally with enough memory";
+    if (process.env.NODE_ENV === "production")
+      throw "Use similarity measure on Heroku";
+
 
     let recs = await recommender.getRecommendations(list, numberOfRec * 2);
     console.log("Recommendation from Recommender module");
