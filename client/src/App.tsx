@@ -99,22 +99,6 @@ function App() {
     });
   }, []);
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       firebase.auth().onAuthStateChanged((user) => {
-  //         setLoggedUser(user);
-  //         setAuthenticated(!!user);
-  //       });
-  //       const response = await moviesService.getUserById(loggedUser.uid);
-  //       setLoggedUser(response);
-  //     } catch (e) {
-  //       console.log(e.messages);
-  //     }
-  //   }
-  //   fetchData();
-  // }, [loggedUser]);
-
   return (
     <Router>
       <div className="App">
@@ -169,7 +153,10 @@ function App() {
                     color="inherit"
                   >
                     {loggedUser && loggedUser.pictureUrl ? (
-                      <Avatar alt="avatar" src={loggedUser.pictureUrl} />
+                      <Avatar
+                        alt="avatar"
+                        src={`/UserProfileImgs/${loggedUser.pictureUrl}`}
+                      />
                     ) : (
                       <AccountCircle />
                     )}

@@ -58,7 +58,6 @@ const EditFormModal = (props) => {
 
   const handleClose = (response) => {
     setOpen(false);
-    console.log(response);
     if (Object.keys(response).includes("pictureUrl")) {
       props.updateUser(response);
     }
