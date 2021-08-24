@@ -7,7 +7,7 @@ async function getRecommendations() {
   const numberOfRec = 20;
   let recommendations = [];
   try {
-    throw "Use similarity measure on Heroku, comment this line out if you testing locally with enough memory";
+    //throw "Use similarity measure on Heroku, comment this line out if you testing locally with enough memory";
     list = [];
     ids = [];
     for (let item of likedMovies) {
@@ -45,7 +45,16 @@ async function getRecommendations() {
       recommendations.slice(0, numberOfRec);
     }
   }
-  parentPort.postMessage(recommendations);
+  let movieSet = recommendations;
+  movieSet = movieSet.map((v) => {
+    return JSON.stringify(v);
+  });
+  movieSet = new Set(movieSet);
+  movieSet = Array.from(movieSet);
+  movieSet = movieSet.map((v) => {
+    return JSON.parse(v);
+  });
+  parentPort.postMessage(movieSet);
 }
 
 getRecommendations();
