@@ -7,7 +7,8 @@ async function getRecommendations() {
   const numberOfRec = 20;
   let recommendations = [];
   try {
-    throw "Use similarity measure on Heroku, comment this line out if you testing locally with enough memory";
+    if (process.env.NODE_ENV === "production")
+      throw "Use similarity measure on Heroku";
     list = [];
     ids = [];
     for (let item of likedMovies) {
