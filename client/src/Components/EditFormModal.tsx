@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import Button from "@material-ui/core/Button";
 import { TextField } from "@material-ui/core";
+import validator from "validator";
 
 function getModalStyle() {
   const top = 50;
@@ -46,7 +47,9 @@ const EditFormModal = (props) => {
   const [newName, setNewName] = React.useState(props.currentUser.name);
   const [newEmail, setNewEmail] = React.useState(props.currentUser.email);
   const [newPhoto, setNewPhoto] = React.useState(null);
-  const [newPhotoName, setNewPhotoName] = React.useState(null);
+  const [newPhotoName, setNewPhotoName] = React.useState(
+    props.currentUser.pictureUrl
+  );
   const [updateError, setUpdateError] = React.useState(undefined);
 
   const handleOpen = () => {
@@ -55,7 +58,10 @@ const EditFormModal = (props) => {
 
   const handleClose = (response) => {
     setOpen(false);
-    props.updateUser(response);
+    console.log(response);
+    if (Object.keys(response).includes("pictureUrl")) {
+      props.updateUser(response);
+    }
   };
 
   const handleChangedName = (event) => {
@@ -69,7 +75,7 @@ const EditFormModal = (props) => {
 
   const handleChangedEmail = (event) => {
     setNewEmail(event.target.value);
-    if (event.target.value === "") {
+    if (event.target.value === "" || !validator.isEmail(event.target.value)) {
       setUpdateError("Email must be included");
     } else {
       setUpdateError(undefined);
@@ -84,16 +90,19 @@ const EditFormModal = (props) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const fileData = new FormData();
-      fileData.append("file", newPhoto);
-      const { uploadedName } = (
-        await moviesService.uploadProfilePhoto(fileData)
-      ).data;
+      if (newPhoto !== null) {
+        const fileData = new FormData();
+        fileData.append("file", newPhoto);
+        const { uploadedName } = (
+          await moviesService.uploadProfilePhoto(fileData)
+        ).data;
+        setNewPhotoName(uploadedName);
+      }
       await moviesService.updateUser(
         currentUser._id,
         newName,
         newEmail,
-        uploadedName
+        newPhotoName
       );
       const response = await moviesService.getUserById(currentUser._id);
       handleClose(response);

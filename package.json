@@ -46,6 +46,7 @@
     "prettier": "^2.3.0",
     "pretty-quick": "^3.1.0",
     "redis": "^3.1.2",
+    "validator": "^13.6.0",
     "xss": "^1.0.9"
   },
   "husky": {

@@ -26,6 +26,7 @@ import Avatar from "@material-ui/core/Avatar";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import Recommendations from "./Components/Recommendations";
+import { moviesService } from "./movies.service";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYk4I-2c5E72cvb_wJwg3syt7xjrAssQg",
@@ -88,11 +89,31 @@ function App() {
   };
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      setLoggedUser(user);
+    firebase.auth().onAuthStateChanged(async (user) => {
       setAuthenticated(!!user);
+      if (user) {
+        const response = await moviesService.getUserById(user.uid);
+        console.log(response);
+        setLoggedUser(response);
+      }
     });
   }, []);
+
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       firebase.auth().onAuthStateChanged((user) => {
+  //         setLoggedUser(user);
+  //         setAuthenticated(!!user);
+  //       });
+  //       const response = await moviesService.getUserById(loggedUser.uid);
+  //       setLoggedUser(response);
+  //     } catch (e) {
+  //       console.log(e.messages);
+  //     }
+  //   }
+  //   fetchData();
+  // }, [loggedUser]);
 
   return (
     <Router>
@@ -147,8 +168,8 @@ function App() {
                     onClick={handleMenu}
                     color="inherit"
                   >
-                    {loggedUser && loggedUser.photoURL ? (
-                      <Avatar alt="avatar" src={loggedUser.photoURL} />
+                    {loggedUser && loggedUser.pictureUrl ? (
+                      <Avatar alt="avatar" src={loggedUser.pictureUrl} />
                     ) : (
                       <AccountCircle />
                     )}
