@@ -347,7 +347,7 @@ export const Movie = (props) => {
                             <Grid item>
                               <Avatar
                                 alt="UserIcon"
-                                src={comment.userPhotoURL}
+                                src={`/UserProfileImgs/${comment.userPhotoURL}`}
                               />
                             </Grid>
                             <Grid item xs zeroMinWidth>
@@ -357,7 +357,12 @@ export const Movie = (props) => {
                               <p style={{ textAlign: "left" }}>
                                 "{comment.comment}"
                               </p>
-                              <p style={{ textAlign: "left", color: "gray" }}>
+                              <p
+                                style={{
+                                  textAlign: "left",
+                                  color: "rgb(119, 119, 119)",
+                                }}
+                              >
                                 Posted {timeDifference(comment.createDate)}
                               </p>
                             </Grid>
@@ -379,7 +384,7 @@ export const Movie = (props) => {
                                     setCommentAdded(true);
                                   }}
                                 >
-                                  <DeleteIcon></DeleteIcon>
+                                  <DeleteIcon aria-label="Delete Comment"></DeleteIcon>
                                 </Button>
                               </Grid>
                             ) : null}
