@@ -16,7 +16,6 @@ async function getRecommendations() {
     if (process.env.NODE_ENV === "production")
       throw "Use similarity measure on Heroku";
 
-
     let recs = await recommender.getRecommendations(list, numberOfRec * 2);
     console.log("Recommendation from Recommender module");
 
@@ -47,7 +46,16 @@ async function getRecommendations() {
       recommendations.slice(0, numberOfRec);
     }
   }
-  parentPort.postMessage(recommendations);
+  let movieSet = recommendations;
+  movieSet = movieSet.map((v) => {
+    return JSON.stringify(v);
+  });
+  movieSet = new Set(movieSet);
+  movieSet = Array.from(movieSet);
+  movieSet = movieSet.map((v) => {
+    return JSON.parse(v);
+  });
+  parentPort.postMessage(movieSet);
 }
 
 getRecommendations();
