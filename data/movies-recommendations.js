@@ -6,15 +6,16 @@ const movielens = require("../data/movielens-api");
 async function getRecommendations() {
   const numberOfRec = 20;
   let recommendations = [];
+  let list = [];
+  let ids = [];
+  for (let item of likedMovies) {
+    list.push(item.title);
+    ids.push(item.id);
+  }
   try {
     if (process.env.NODE_ENV === "production")
       throw "Use similarity measure on Heroku";
-    list = [];
-    ids = [];
-    for (let item of likedMovies) {
-      list.push(item.title);
-      ids.push(item.id);
-    }
+
 
     let recs = await recommender.getRecommendations(list, numberOfRec * 2);
     console.log("Recommendation from Recommender module");
