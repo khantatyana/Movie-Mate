@@ -119,7 +119,6 @@ export const UserProfile = (props) => {
 
   const updateUser = (userData) => {
     setUserData(userData);
-    console.log(userData);
   };
 
   const buildListItem = (result) => {
@@ -218,7 +217,7 @@ export const UserProfile = (props) => {
             <Card className={classes.card}>
               <Avatar
                 alt="Profile"
-                src={userData.pictureUrl}
+                src={`/UserProfileImgs/${userData.pictureUrl}`}
                 className={classes.large}
               />
               <CardContent>

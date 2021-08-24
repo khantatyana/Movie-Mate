@@ -315,7 +315,7 @@ router.post("/upload", async function (req, res) {
       console.log(err);
       return res.status(500).json(err);
     }
-    return res.json({ uploadedName: `/UserProfileImgs/${req.file.filename}` });
+    return res.json({ uploadedName: req.file.filename });
   });
 });
 
