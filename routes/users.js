@@ -13,6 +13,10 @@ router.get("/recommendations", async (req, res) => {
   try {
     if (!routesUtils.authenticateUser(req, res)) return;
 
+    if (req.user.likedMovies.length === 0) {
+      return res.json({ status: "NO_FAVS" });
+    }
+
     const redisStatusKey = `users:${req.user.id}:recommendations:status`;
     const redisResultKey = `users:${req.user.id}:recommendations:result`;
     const result = {};
